@@ -135,7 +135,7 @@ export function Generate({ onClose }: { onClose: () => void }) {
 
   const handleGenerate = () => {
     setStep(3);
-    // Simulate generation
+    // Simulate generation (TODO: 临时性的 3 秒展示，后续将根据真实生成时间动态移除)
     setTimeout(() => {
       setGeneratedPost({
         id: 'gen1',
@@ -349,7 +349,7 @@ export function Generate({ onClose }: { onClose: () => void }) {
             animate={{ opacity: 1 }}
             className="flex-1 flex flex-col items-center justify-center"
           >
-            <div className="relative w-48 h-48 mb-8">
+            <div className="relative w-96 h-96 mb-8">
               <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse" />
               <MetallicPaint 
                 imageSrc="/N-metallic.svg"
