@@ -7,8 +7,13 @@ export function Philosophy() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, ease: "easeOut" }}
+        className="flex flex-col items-center"
       >
-        <h1 className="text-5xl font-bold mb-8 tracking-widest text-primary font-sans uppercase">Narrio</h1>
+        <img 
+          src="/Narrio-text.svg" 
+          alt="Narrio" 
+          className="w-80 -mt-8 mb-4" 
+        />
         <h2 className="text-3xl font-serif mb-16 leading-relaxed font-light">
           释放<br/>创作势能
         </h2>

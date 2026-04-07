@@ -4,6 +4,8 @@ import { Link as LinkIcon, Type, Sparkles, ArrowRight, Check, Loader2, Plus, Che
 import { PostDetail } from './PostDetail';
 import { Post } from '../types';
 
+import MetallicPaint from './MetallicPaint';
+
 const STYLES = [
   { id: 's1', name: '极简留白', cover: 'https://picsum.photos/seed/style1/300/400', description: '大面积留白，突出核心文字，适合哲理与沉思类内容。' },
   { id: 's2', name: '新锐酸性', cover: 'https://picsum.photos/seed/style2/300/400', description: '高饱和度色彩与扭曲排版，极具视觉冲击力与先锋感。' },
@@ -347,11 +349,33 @@ export function Generate({ onClose }: { onClose: () => void }) {
             animate={{ opacity: 1 }}
             className="flex-1 flex flex-col items-center justify-center"
           >
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full animate-pulse" />
-              <Loader2 size={48} className="text-primary animate-spin relative z-10" />
+            <div className="relative w-48 h-48 mb-8">
+              <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse" />
+              <MetallicPaint 
+                imageSrc="/N-metallic.svg"
+                seed={42} 
+                scale={4} 
+                patternSharpness={1} 
+                noiseScale={0.5} 
+                speed={0.4} 
+                liquid={0.75} 
+                mouseAnimation={false} 
+                brightness={2} 
+                contrast={0.5} 
+                refraction={0.01} 
+                blur={0.015} 
+                chromaticSpread={2} 
+                fresnel={1} 
+                angle={0} 
+                waveAmplitude={1} 
+                distortion={1} 
+                contour={0.2} 
+                lightColor="#ffffff" 
+                darkColor="#050505" 
+                tintColor="#4800FF" 
+              />
             </div>
-            <h2 className="text-xl font-medium mt-10 mb-3">正在释放创作势能</h2>
+            <h2 className="text-xl font-medium mb-3">正在释放创作势能</h2>
             <p className="text-white/40 text-sm text-center max-w-[240px] leading-relaxed">
               AI 正在提取核心观点并进行视觉排版，请稍候...
             </p>
