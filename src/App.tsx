@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Compass, Plus, BookOpen } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import { Explore } from './components/Explore';
 import { Generate } from './components/Generate';
@@ -31,22 +30,22 @@ export default function App() {
             onClick={() => setActiveTab('explore')}
             className={`flex flex-col items-center space-y-1.5 transition-colors ${activeTab === 'explore' ? 'text-primary' : 'text-white/40'}`}
           >
-            <Compass size={24} strokeWidth={activeTab === 'explore' ? 2.5 : 2} />
+            <div className="w-12 h-12 bg-current" style={{ WebkitMaskImage: 'url(/explore.svg)', WebkitMaskSize: 'contain', WebkitMaskRepeat: 'no-repeat', WebkitMaskPosition: 'center', maskImage: 'url(/explore.svg)', maskSize: 'contain', maskRepeat: 'no-repeat', maskPosition: 'center' }} />
             <span className="text-[10px] font-sans font-medium uppercase tracking-wider">Explore</span>
           </button>
           
           <button 
             onClick={() => setIsGenerateOpen(true)}
-            className="relative -top-6 flex items-center justify-center w-14 h-14 rounded-full bg-primary text-white shadow-[0_0_20px_rgba(72,0,255,0.4)] transition-transform active:scale-95"
+            className="relative -top-8 flex items-center justify-center w-16 h-16 rounded-full bg-primary text-white shadow-[0_0_20px_rgba(72,0,255,0.4)] transition-transform active:scale-95"
           >
-            <Plus size={32} strokeWidth={2.5} />
+            <div className="w-[4.5rem] h-[4.5rem] bg-current" style={{ WebkitMaskImage: 'url(/plus.svg)', WebkitMaskSize: 'contain', WebkitMaskRepeat: 'no-repeat', WebkitMaskPosition: 'center', maskImage: 'url(/plus.svg)', maskSize: 'contain', maskRepeat: 'no-repeat', maskPosition: 'center' }} />
           </button>
           
           <button 
             onClick={() => setActiveTab('philosophy')}
             className={`flex flex-col items-center space-y-1.5 transition-colors ${activeTab === 'philosophy' ? 'text-primary' : 'text-white/40'}`}
           >
-            <BookOpen size={24} strokeWidth={activeTab === 'philosophy' ? 2.5 : 2} />
+            <div className="w-12 h-12 bg-current" style={{ WebkitMaskImage: 'url(/philosophy.svg)', WebkitMaskSize: 'contain', WebkitMaskRepeat: 'no-repeat', WebkitMaskPosition: 'center', maskImage: 'url(/philosophy.svg)', maskSize: 'contain', maskRepeat: 'no-repeat', maskPosition: 'center' }} />
             <span className="text-[10px] font-sans font-medium uppercase tracking-wider">Philosophy</span>
           </button>
         </div>

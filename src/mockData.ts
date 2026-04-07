@@ -54,5 +54,85 @@ export const MOCK_POSTS: Post[] = [
     author: 'React Master',
     avatar: 'https://i.pravatar.cc/150?u=react',
     likes: 2100
+  },
+  {
+    id: '5',
+    title: 'A Guide to Better Typography',
+    cover: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?q=80&w=2070&auto=format&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?q=80&w=2070&auto=format&fit=crop'
+    ],
+    originalType: 'article',
+    originalContent: 'Typography is the art and technique of arranging type to make written language legible, readable, and appealing when displayed...',
+    author: 'Design Studio',
+    avatar: 'https://i.pravatar.cc/150?u=typo',
+    likes: 1530
+  },
+  {
+    id: '6',
+    title: 'Web3: What You Need to Know',
+    cover: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=2070&auto=format&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=2070&auto=format&fit=crop'
+    ],
+    originalType: 'podcast',
+    originalContent: 'Today we dive deep into the world of Web3, blockchain technology, and decentralized applications...',
+    audioUrl: 'https://example.com/audio.mp3',
+    author: 'Crypto Daily',
+    avatar: 'https://i.pravatar.cc/150?u=crypto',
+    likes: 2890
+  },
+  {
+    id: '7',
+    title: 'The Art of Coffee Brewing',
+    cover: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=2071&auto=format&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=2071&auto=format&fit=crop'
+    ],
+    originalType: 'article',
+    originalContent: 'Mastering the perfect cup of coffee takes patience, quality beans, and the right brewing technique...',
+    author: 'Cafe Culture',
+    avatar: 'https://i.pravatar.cc/150?u=coffee',
+    likes: 3420
+  },
+  {
+    id: '8',
+    title: 'Remote Work Strategies',
+    cover: 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?q=80&w=2069&auto=format&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?q=80&w=2069&auto=format&fit=crop'
+    ],
+    originalType: 'article',
+    originalContent: 'How to maintain productivity and work-life balance while working from home...',
+    author: 'Digital Nomad',
+    avatar: 'https://i.pravatar.cc/150?u=remote',
+    likes: 956
+  },
+  {
+    id: '9',
+    title: 'Sustainable Architecture',
+    cover: 'https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=2065&auto=format&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=2065&auto=format&fit=crop'
+    ],
+    originalType: 'article',
+    originalContent: 'Exploring eco-friendly building materials and energy-efficient designs in modern architecture...',
+    author: 'Eco Builder',
+    avatar: 'https://i.pravatar.cc/150?u=eco',
+    likes: 1840
+  },
+  {
+    id: '10',
+    title: 'Indie Game Development',
+    cover: 'https://images.unsplash.com/photo-1552820728-8b83bb6b773f?q=80&w=2070&auto=format&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1552820728-8b83bb6b773f?q=80&w=2070&auto=format&fit=crop'
+    ],
+    originalType: 'podcast',
+    originalContent: 'An interview with the creators of the hit indie game about their journey and challenges...',
+    audioUrl: 'https://example.com/audio.mp3',
+    author: 'Gamer Zone',
+    avatar: 'https://i.pravatar.cc/150?u=game',
+    likes: 4200
   }
 ];
