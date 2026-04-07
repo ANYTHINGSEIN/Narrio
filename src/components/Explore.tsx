@@ -28,7 +28,7 @@ export function Explore() {
             className="break-inside-avoid rounded-2xl overflow-hidden bg-surface border border-white/5 group cursor-pointer flex flex-col"
             onClick={() => setSelectedPost(post)}
           >
-            <img src={post.cover} alt={post.title} className="w-full object-cover" />
+            <img src={post.cover} alt={post.title} className="w-full aspect-[3/4] object-cover" />
             <div className="p-3 flex flex-col">
               <h3 className="text-sm font-medium line-clamp-2 mb-2 leading-snug">{post.title}</h3>
               <div className="flex items-center justify-between text-xs text-white/70 font-sans">

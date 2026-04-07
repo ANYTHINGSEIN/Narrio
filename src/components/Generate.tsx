@@ -164,6 +164,7 @@ export function Generate({ onClose }: { onClose: () => void }) {
           setInputValue('');
           setSelectedStyle('');
           setGeneratedPost(null);
+          onClose();
         }} 
       />
     );
