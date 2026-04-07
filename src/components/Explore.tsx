@@ -8,7 +8,7 @@ export function Explore() {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   return (
-    <div className="min-h-screen pb-24 px-4 pt-12 max-w-7xl mx-auto">
+    <div className="min-h-screen pb-32 px-4 pt-12 max-w-7xl mx-auto">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

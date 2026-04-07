@@ -2,7 +2,7 @@ import { motion } from 'motion/react';
 
 export function Philosophy() {
   return (
-    <div className="min-h-screen pb-24 px-6 pt-24 flex flex-col items-center text-center">
+    <div className="min-h-screen pb-32 px-6 pt-24 flex flex-col items-center text-center">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
