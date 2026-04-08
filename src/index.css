@@ -5,6 +5,7 @@
 @import "@fontsource-variable/geist";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant red-hackathon-presentation (@media (width: 1350px) and (height: 350px));
 
 @theme {
   --font-serif: "Noto Serif SC", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
