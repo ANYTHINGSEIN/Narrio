@@ -5,7 +5,7 @@ from PIL import Image
 def main():
     # Define directories and files
     ppt_dir = "/Users/kaiserwetter/Projects/26-Project/2604-Narrio/Narrio/ppt"
-    output_pdf = "/Users/kaiserwetter/Projects/26-Project/2604-Narrio/Narrio/NARRIO.pdf"
+    output_pdf = os.path.join(ppt_dir, "NARRIO.pdf")
 
     print(f"Reading images from: {ppt_dir}")
 
