@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { ChevronLeft, Play, Pause, Download, Loader2, X } from 'lucide-react';
-import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Post } from '../types';
 
 export function PostDetail({ post, onClose, mode = 'feed' }: { post: Post; onClose: () => void; mode?: 'feed' | 'preview' }) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -29,37 +29,24 @@ export function PostDetail({ post, onClose, mode = 'feed' }: { post: Post; onClo
     }
   };
 
-  const handleExport = async (e: React.MouseEvent) => {
+  const handleDownloadImage = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isExporting) return;
+    if (isDownloading) return;
     
-    setIsExporting(true);
+    setIsDownloading(true);
     try {
-      const zip = new JSZip();
-      const imgFolder = zip.folder("images");
+      const imgUrl = post.images[currentImageIndex];
+      const response = await fetch(imgUrl);
+      const blob = await response.blob();
       
-      if (imgFolder) {
-        // Fetch all images and add to zip
-        await Promise.all(post.images.map(async (imgUrl, index) => {
-          try {
-            const response = await fetch(imgUrl);
-            const blob = await response.blob();
-            // Try to guess extension from URL or default to jpg
-            const ext = imgUrl.split('.').pop()?.split(/[#?]/)[0] || 'jpg';
-            const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext.toLowerCase()) ? ext : 'jpg';
-            imgFolder.file(`image_${index + 1}.${safeExt}`, blob);
-          } catch (err) {
-            console.error(`Failed to fetch image ${index + 1}:`, err);
-          }
-        }));
-      }
+      const ext = imgUrl.split('.').pop()?.split(/[#?]/)[0] || 'jpg';
+      const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext.toLowerCase()) ? ext : 'jpg';
       
-      const content = await zip.generateAsync({ type: "blob" });
-      saveAs(content, `${post.title || 'narrio-post'}.zip`);
+      saveAs(blob, `${post.title || 'image'}_${currentImageIndex + 1}.${safeExt}`);
     } catch (error) {
-      console.error("Export failed:", error);
+      console.error("Download failed:", error);
     } finally {
-      setIsExporting(false);
+      setIsDownloading(false);
     }
   };
 
@@ -101,7 +88,14 @@ export function PostDetail({ post, onClose, mode = 'feed' }: { post: Post; onClo
         </div>
 
         {/* Image Carousel */}
-        <div className="w-full aspect-[3/4] bg-[#050505] relative flex overflow-x-auto snap-x snap-mandatory no-scrollbar shrink-0 border-b border-white/5">
+        <div 
+          className="w-full aspect-[3/4] bg-[#050505] relative flex overflow-x-auto snap-x snap-mandatory no-scrollbar shrink-0 border-b border-white/5"
+          onScroll={(e) => {
+            const element = e.currentTarget;
+            const index = Math.round(element.scrollLeft / element.clientWidth);
+            setCurrentImageIndex(index);
+          }}
+        >
           {post.images.map((img, idx) => (
             <div key={idx} className="w-full h-full flex-shrink-0 snap-center relative flex items-center justify-center">
               <img src={img} alt={`Slide ${idx}`} className="w-full h-full object-cover" />
@@ -145,12 +139,12 @@ export function PostDetail({ post, onClose, mode = 'feed' }: { post: Post; onClo
         {mode === 'preview' && (
           <div className="sticky bottom-8 z-20 mt-auto pt-4 pb-2 bg-bg/90 backdrop-blur-xl px-6">
             <button
-              onClick={handleExport}
-              disabled={isExporting}
+              onClick={handleDownloadImage}
+              disabled={isDownloading}
               className="w-full py-4 rounded-2xl bg-primary text-white font-bold font-sans flex items-center justify-center space-x-2 disabled:opacity-50 transition-all shadow-[0_4px_20px_rgba(72,0,255,0.4)]"
             >
-              {isExporting ? <Loader2 className="animate-spin" size={20} /> : <Download size={20} />}
-              <span>{isExporting ? '打包导出中...' : '导出图文 (ZIP)'}</span>
+              {isDownloading ? <Loader2 className="animate-spin" size={20} /> : <Download size={20} />}
+              <span>{isDownloading ? '下载中...' : '下载图片'}</span>
             </button>
           </div>
         )}
