@@ -8,6 +8,7 @@ interface PlasmaProps {
   scale?: number;
   opacity?: number;
   mouseInteractive?: boolean;
+  dpr?: number;
   style?: React.CSSProperties;
   className?: string;
 }
@@ -77,6 +78,7 @@ export const Plasma: React.FC<PlasmaProps> = ({
   scale = 1,
   opacity = 1,
   mouseInteractive = true,
+  dpr,
   style,
   className
 }) => {
@@ -98,7 +100,8 @@ export const Plasma: React.FC<PlasmaProps> = ({
       webgl: 2,
       alpha: true,
       antialias: false,
-      dpr: Math.min(window.devicePixelRatio || 1, 2)
+      preserveDrawingBuffer: true,
+      dpr: dpr || Math.min(window.devicePixelRatio || 1, 2)
     });
     const gl = renderer.gl;
     const canvas = gl.canvas as HTMLCanvasElement;

@@ -3,12 +3,18 @@ import { AnimatePresence } from 'motion/react';
 import { Explore } from './components/Explore';
 import { Generate } from './components/Generate';
 import { Philosophy } from './components/Philosophy/index';
+import { PlasmaPage } from './components/PlasmaPage';
 
 type Tab = 'explore' | 'philosophy';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('explore');
   const [isGenerateOpen, setIsGenerateOpen] = useState(false);
+
+  // If we are on the /plasma route, just render the plasma page
+  if (typeof window !== 'undefined' && window.location.pathname === '/plasma') {
+    return <PlasmaPage />;
+  }
 
   const isIsolatedSection = new URLSearchParams(window.location.search).has('section');
 
