@@ -81,10 +81,11 @@ void main() {
   vec3 rgb = sanitize(o.rgb);
   
   float intensity = (rgb.r + rgb.g + rgb.b) / 3.0;
-  vec3 customColor = intensity * uCustomColor;
+  float boostedIntensity = pow(max(intensity, 0.0), 0.7) * 1.8;
+  vec3 customColor = boostedIntensity * uCustomColor;
   vec3 finalColor = mix(rgb, customColor, step(0.5, uUseCustomColor));
   
-  float alpha = length(rgb) * uOpacity;
+  float alpha = max(length(finalColor) * 0.8, boostedIntensity * 0.25) * uOpacity;
   fragColor = vec4(finalColor, alpha);
 }`;
 

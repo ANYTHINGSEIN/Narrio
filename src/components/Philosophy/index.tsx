@@ -1,47 +1,19 @@
-import { useEffect, useState } from 'react';
-import { Section1 } from './Section1';
-import { Section2 } from './Section2';
-import { Section3 } from './Section3';
-import { Section4 } from './Section4';
-import { Section5 } from './Section5';
+import { Plasma } from '@/components/Plasma';
 
 export function Philosophy() {
-  const [isolatedSection, setIsolatedSection] = useState<number | null>(null);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const section = params.get('section');
-    if (section) {
-      setIsolatedSection(parseInt(section, 10));
-    }
-  }, []);
-
-  const sections = [
-    <Section1 key="1" />,
-    <Section2 key="2" />,
-    <Section3 key="3" />,
-    <Section4 key="4" />,
-    <Section5 key="5" />
-  ];
-
-  if (isolatedSection !== null && isolatedSection > 0 && isolatedSection <= sections.length) {
-    return (
-      <div className="w-screen h-screen overflow-hidden bg-bg p-[clamp(1rem,4vw,2rem)] box-border">
-        <div className="w-full h-full relative rounded-[clamp(1rem,3vw,2.5rem)] border border-white/10 overflow-hidden bg-white/5">
-          {sections[isolatedSection - 1]}
-        </div>
-      </div>
-    );
-  }
+  const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#4800FF';
 
   return (
-    <div className="w-full min-h-screen p-[clamp(1rem,4vw,2rem)] box-border bg-bg">
-      <div className="flex flex-col w-full relative rounded-[clamp(1rem,3vw,2.5rem)] border border-white/10 overflow-hidden bg-white/5">
-        {sections.map((section, index) => (
-          <div key={index} className="w-full h-[calc(100dvh-clamp(2rem,8vw,4rem))] shrink-0">
-            {section}
-          </div>
-        ))}
+    <div className="w-full min-h-screen">
+      <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+        <Plasma
+          color={primaryColor}
+          speed={1}
+          direction="forward"
+          scale={1}
+          opacity={1}
+          mouseInteractive
+        />
       </div>
     </div>
   );
