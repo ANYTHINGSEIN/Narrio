@@ -37,7 +37,11 @@ export function Philosophy() {
   return (
     <div className="w-full min-h-screen p-[clamp(1rem,4vw,2rem)] box-border bg-bg">
       <div className="flex flex-col w-full relative rounded-[clamp(1rem,3vw,2.5rem)] border border-white/10 overflow-hidden bg-white/5">
-        {sections}
+        {sections.map((section, index) => (
+          <div key={index} className="w-full h-[calc(100dvh-clamp(2rem,8vw,4rem))] shrink-0">
+            {section}
+          </div>
+        ))}
       </div>
     </div>
   );

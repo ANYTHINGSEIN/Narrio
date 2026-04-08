@@ -2,7 +2,7 @@ import { motion } from 'motion/react';
 
 export function Section5() {
   return (
-    <section className="w-full h-screen flex flex-col items-center justify-center px-8 relative overflow-hidden shrink-0">
+    <section className="w-full h-full flex flex-col items-center justify-center px-8 relative overflow-hidden shrink-0">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         whileInView={{ opacity: 1, scale: 1 }}

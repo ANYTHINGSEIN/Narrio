@@ -3,7 +3,7 @@ import MetallicPaint from '../MetallicPaint';
 
 export function Section1() {
   return (
-    <section className="w-full h-screen flex flex-col items-center justify-center relative overflow-hidden shrink-0">
+    <section className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden shrink-0">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -11,7 +11,7 @@ export function Section1() {
         transition={{ duration: 1, ease: "easeOut" }}
         className="flex flex-col items-center justify-center"
       >
-        <div className="relative w-[clamp(140px,45vh,320px)] h-[clamp(140px,45vh,320px)] shrink-0 -mb-[clamp(3rem,12vh,6rem)]">
+        <div className="relative w-[clamp(140px,45vh,320px)] h-[clamp(140px,45vh,320px)] lg:w-[clamp(280px,90vh,640px)] lg:h-[clamp(280px,90vh,640px)] shrink-0 -mb-[clamp(3rem,12vh,6rem)] lg:-mb-[clamp(6rem,24vh,12rem)]">
           <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse" />
           <MetallicPaint 
             imageSrc="/Narrio-text-metallic.svg"
