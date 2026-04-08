@@ -2,13 +2,24 @@ import { useState } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { Explore } from './components/Explore';
 import { Generate } from './components/Generate';
-import { Philosophy } from './components/Philosophy';
+import { Philosophy } from './components/Philosophy/index';
 
 type Tab = 'explore' | 'philosophy';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('explore');
   const [isGenerateOpen, setIsGenerateOpen] = useState(false);
+
+  const isIsolatedSection = new URLSearchParams(window.location.search).has('section');
+
+  // If in isolated section mode, we force the active tab to philosophy and hide navigation
+  if (isIsolatedSection) {
+    return (
+      <div className="min-h-screen bg-bg text-white font-serif selection:bg-primary/30">
+        <Philosophy />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-bg text-white font-serif selection:bg-primary/30">
