@@ -1,5 +1,5 @@
-import { Plasma } from '@/components/Plasma';
-import { motion } from 'framer-motion';
+import { Plasma } from '../Plasma';
+import { motion } from 'motion/react';
 import MetallicPaint from '../MetallicPaint';
 
 export function HeroSection() {
