@@ -281,7 +281,7 @@ export function Generate({ onClose }: { onClose: () => void }) {
             className="flex-1 flex flex-col min-h-0"
           >
             <h2 className="text-xl font-medium mb-6 shrink-0">选择视觉风格</h2>
-            <div className="grid grid-cols-2 gap-4 flex-1 overflow-y-auto no-scrollbar pb-4 items-start">
+            <div className="grid grid-cols-2 gap-4 flex-1 overflow-y-auto no-scrollbar pb-4 items-start content-start">
               {STYLES.map((style) => {
                 const isSelected = selectedStyle === style.id;
                 return (
@@ -293,8 +293,8 @@ export function Generate({ onClose }: { onClose: () => void }) {
                   >
                     <motion.div layout className="relative w-full aspect-[3/4] shrink-0">
                       <img src={style.cover} alt={style.name} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex items-end p-4">
-                        <span className="text-sm font-medium tracking-wide">{style.name}</span>
+                      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-transparent flex items-start p-4">
+                        <span className="text-sm font-medium tracking-wide drop-shadow-md">{style.name}</span>
                       </div>
                       {isSelected && (
                         <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center shadow-lg">
@@ -302,22 +302,6 @@ export function Generate({ onClose }: { onClose: () => void }) {
                         </div>
                       )}
                     </motion.div>
-                    
-                    <AnimatePresence>
-                      {isSelected && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3, ease: "easeInOut" }}
-                          className="overflow-hidden"
-                        >
-                          <div className="p-3 text-xs text-white/70 leading-relaxed font-sans bg-surface-light border-t border-white/5">
-                            {style.description}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
                   </motion.div>
                 );
               })}
