@@ -39,10 +39,13 @@ export default function App() {
         <div className="relative flex justify-around items-center px-6 py-2 w-full">
           <button 
             onClick={() => setActiveTab('explore')}
-            className={`flex flex-col items-center space-y-1 transition-colors ${activeTab === 'explore' ? 'text-primary' : 'text-white/40'}`}
+            className="relative flex flex-col items-center space-y-1"
           >
-            <div className="w-8 h-8 bg-current" style={{ WebkitMaskImage: 'url(/explore.svg)', WebkitMaskSize: 'contain', WebkitMaskRepeat: 'no-repeat', WebkitMaskPosition: 'center', maskImage: 'url(/explore.svg)', maskSize: 'contain', maskRepeat: 'no-repeat', maskPosition: 'center' }} />
-            <span className="text-[10px] font-sans font-medium uppercase tracking-wider">Explore</span>
+            {activeTab === 'explore' && (
+              <div className="absolute top-1 w-6 h-6 bg-primary/80 blur-md rounded-full" />
+            )}
+            <div className={`relative z-10 w-8 h-8 transition-colors ${activeTab === 'explore' ? 'bg-primary' : 'bg-white/40'}`} style={{ WebkitMaskImage: 'url(/explore.svg)', WebkitMaskSize: 'contain', WebkitMaskRepeat: 'no-repeat', WebkitMaskPosition: 'center', maskImage: 'url(/explore.svg)', maskSize: 'contain', maskRepeat: 'no-repeat', maskPosition: 'center' }} />
+            <span className={`relative z-10 text-[10px] font-sans font-medium uppercase tracking-wider transition-colors ${activeTab === 'explore' ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-white/40'}`}>Explore</span>
           </button>
           
           <div className="relative w-12 h-10 flex items-center justify-center">
@@ -59,10 +62,13 @@ export default function App() {
           
           <button 
             onClick={() => setActiveTab('philosophy')}
-            className={`flex flex-col items-center space-y-1 transition-colors ${activeTab === 'philosophy' ? 'text-primary' : 'text-white/40'}`}
+            className="relative flex flex-col items-center space-y-1"
           >
-            <div className="w-8 h-8 bg-current" style={{ WebkitMaskImage: 'url(/philosophy.svg)', WebkitMaskSize: 'contain', WebkitMaskRepeat: 'no-repeat', WebkitMaskPosition: 'center', maskImage: 'url(/philosophy.svg)', maskSize: 'contain', maskRepeat: 'no-repeat', maskPosition: 'center' }} />
-            <span className="text-[10px] font-sans font-medium uppercase tracking-wider">Philosophy</span>
+            {activeTab === 'philosophy' && (
+              <div className="absolute top-1 w-6 h-6 bg-primary/80 blur-md rounded-full" />
+            )}
+            <div className={`relative z-10 w-8 h-8 transition-colors ${activeTab === 'philosophy' ? 'bg-primary' : 'bg-white/40'}`} style={{ WebkitMaskImage: 'url(/philosophy.svg)', WebkitMaskSize: 'contain', WebkitMaskRepeat: 'no-repeat', WebkitMaskPosition: 'center', maskImage: 'url(/philosophy.svg)', maskSize: 'contain', maskRepeat: 'no-repeat', maskPosition: 'center' }} />
+            <span className={`relative z-10 text-[10px] font-sans font-medium uppercase tracking-wider transition-colors ${activeTab === 'philosophy' ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-white/40'}`}>Philosophy</span>
           </button>
         </div>
       </div>
