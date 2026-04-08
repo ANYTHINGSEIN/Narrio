@@ -4,13 +4,13 @@ export function Philosophy() {
   const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#4800FF';
 
   return (
-    <div className="w-full min-h-screen">
-      <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+    <div className="relative w-screen h-[100dvh] overflow-hidden">
+      <div className="absolute inset-0">
         <Plasma
           color={primaryColor}
           speed={1}
           direction="forward"
-          scale={1}
+          scale={0.65}
           opacity={1}
           mouseInteractive
         />
