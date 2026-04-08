@@ -8,6 +8,8 @@ interface PlasmaProps {
   scale?: number;
   opacity?: number;
   mouseInteractive?: boolean;
+  style?: React.CSSProperties;
+  className?: string;
 }
 
 const hexToRgb = (hex: string): [number, number, number] => {
@@ -74,7 +76,9 @@ export const Plasma: React.FC<PlasmaProps> = ({
   direction = 'forward',
   scale = 1,
   opacity = 1,
-  mouseInteractive = true
+  mouseInteractive = true,
+  style,
+  className
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mousePos = useRef({ x: 0, y: 0 });
@@ -185,7 +189,13 @@ export const Plasma: React.FC<PlasmaProps> = ({
     };
   }, [color, speed, direction, scale, opacity, mouseInteractive]);
 
-  return <div ref={containerRef} className="w-full h-full relative overflow-hidden" />;
+  return (
+    <div 
+      ref={containerRef} 
+      className={`w-full h-full relative overflow-hidden ${className || ''}`}
+      style={style}
+    />
+  );
 };
 
 export default Plasma;

@@ -9,12 +9,13 @@ export function HeroSection() {
     <section className="relative w-full min-h-[100dvh] overflow-hidden flex items-center justify-center">
       <div className="absolute inset-0">
         <Plasma
-          color={primaryColor}
+          color="#4800FF"
+          style={{ backgroundColor: '#000000' }} // 这里就是调整 Canvas BG 的地方
           speed={1}
           direction="forward"
           scale={1}
           opacity={1}
-          mouseInteractive
+          mouseInteractive={false}
         />
       </div>
       <motion.div 
