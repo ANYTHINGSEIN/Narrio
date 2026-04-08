@@ -9,9 +9,9 @@ export function Section1() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 1, ease: "easeOut" }}
-        className="flex flex-col items-center"
+        className="flex flex-col items-center justify-center"
       >
-        <div className="relative w-80 h-80 -mt-8 mb-4">
+        <div className="relative w-[clamp(140px,45vh,320px)] h-[clamp(140px,45vh,320px)] shrink-0 -mb-[clamp(3rem,12vh,6rem)]">
           <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse" />
           <MetallicPaint 
             imageSrc="/Narrio-text-metallic.svg"
@@ -37,7 +37,7 @@ export function Section1() {
             tintColor="#4800FF" 
           />
         </div>
-        <h2 className="text-4xl font-serif mb-16 leading-relaxed font-light text-center">
+        <h2 className="text-[clamp(1.5rem,5vh,2.25rem)] font-serif leading-relaxed font-light text-center shrink-0">
           释放<br/>创作势能
         </h2>
       </motion.div>

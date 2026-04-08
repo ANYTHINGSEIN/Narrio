@@ -8,7 +8,7 @@ export function Section5() {
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 1, ease: "easeOut" }}
-        className="text-primary/90 font-medium font-serif tracking-widest text-3xl md:text-5xl text-center"
+        className="text-primary/90 font-medium font-serif tracking-widest text-[clamp(1.5rem,6vh,3rem)] text-center px-4"
       >
         <p>
           让思想，以最美的姿态传播。

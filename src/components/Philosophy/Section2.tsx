@@ -8,7 +8,7 @@ export function Section2() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 1, ease: "easeOut" }}
-        className="text-white/80 font-serif leading-loose max-w-2xl text-2xl md:text-3xl text-center"
+        className="text-white/80 font-serif leading-relaxed sm:leading-loose max-w-2xl text-[clamp(1.125rem,5vh,1.875rem)] text-center px-4"
       >
         <p>
           在这个碎片化阅读的时代，<br/>
