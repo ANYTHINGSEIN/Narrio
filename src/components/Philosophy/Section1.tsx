@@ -9,7 +9,7 @@ export function Section1() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 1, ease: "easeOut" }}
-        className="flex flex-col items-center justify-center"
+        className="flex flex-col items-center justify-center -mt-[clamp(2rem,8vh,4rem)]"
       >
         <div className="relative w-[clamp(140px,45vh,320px)] h-[clamp(140px,45vh,320px)] lg:w-[clamp(280px,90vh,640px)] lg:h-[clamp(280px,90vh,640px)] shrink-0 -mb-[clamp(3rem,12vh,6rem)] lg:-mb-[clamp(6rem,24vh,12rem)]">
           <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse" />
