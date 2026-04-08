@@ -1,12 +1,13 @@
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
+import { PDFDocument } from 'pdf-lib';
 
 // Parse arguments
 const args = process.argv.slice(2);
-let width = 1920;
-let height = 1080;
-let scale = 2; // Default scale multiplier
+let width = 1450;
+let height = 350;
+let scale = 4; // Default scale multiplier
 let port = 3000;
 
 for (let i = 0; i < args.length; i++) {
@@ -62,5 +63,33 @@ if (!fs.existsSync(OUT_DIR)) {
   }
 
   await browser.close();
-  console.log('Export complete!');
+  console.log('Images exported successfully!');
+
+  // Combine images into PDF
+  console.log('Generating Narrio.pdf...');
+  const pdfDoc = await PDFDocument.create();
+
+  for (let i = 1; i <= SECTIONS; i++) {
+    const imagePath = path.join(OUT_DIR, `section-${i}.png`);
+    if (fs.existsSync(imagePath)) {
+      const imageBytes = fs.readFileSync(imagePath);
+      const image = await pdfDoc.embedPng(imageBytes);
+      
+      // Calculate scaled dimensions to fit the exact width/height we want in the PDF document
+      const page = pdfDoc.addPage([width, height]);
+      
+      page.drawImage(image, {
+        x: 0,
+        y: 0,
+        width: width,
+        height: height,
+      });
+    }
+  }
+
+  const pdfBytes = await pdfDoc.save();
+  const pdfPath = path.join(process.cwd(), 'Narrio.pdf');
+  fs.writeFileSync(pdfPath, pdfBytes);
+  
+  console.log(`Export complete! PDF saved to: ${pdfPath}`);
 })();
