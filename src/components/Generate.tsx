@@ -1,56 +1,15 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link as LinkIcon, Type, Sparkles, ArrowRight, Check, Loader2, Plus, ChevronDown, X } from 'lucide-react';
+import { Link as LinkIcon, Type, Sparkles, ArrowRight, Check, Plus, ChevronDown, X } from 'lucide-react';
 import { PostDetail } from './PostDetail';
-import { Post } from '../types';
+import type { Post } from '../types';
+import { useSSRSources } from '../api/hooks-ssr';
+import { useStyles } from '../api/hooks';
+import type { SSRSource, Style } from '../api/types';
 
 import MetallicPaint from './MetallicPaint';
 
-const STYLES = [
-  { id: 's1', name: '极简留白', cover: 'https://picsum.photos/seed/style1/300/400', description: '大面积留白，突出核心文字，适合哲理与沉思类内容。' },
-  { id: 's2', name: '新锐酸性', cover: 'https://picsum.photos/seed/style2/300/400', description: '高饱和度色彩与扭曲排版，极具视觉冲击力与先锋感。' },
-  { id: 's3', name: '复古报纸', cover: 'https://picsum.photos/seed/style3/300/400', description: '经典衬线体与黑白质感，唤起纸质阅读的怀旧温度。' },
-  { id: 's4', name: '播客波形', cover: 'https://picsum.photos/seed/style4/300/400', description: '结合音频波形元素，专为播客内容设计的动态视觉。' },
-];
-
-const RECOMMENDED_SOURCES = [
-  {
-    id: 'src1',
-    name: '科技早知道',
-    avatar: 'https://picsum.photos/seed/avatar1/100/100',
-    description: '探索科技商业的未来趋势',
-    articles: [
-      { id: 'a1', title: 'AI 时代的创造力法则', summary: '探讨创作者如何利用 AI 扩展边界', url: 'https://example.com/podcast/1' },
-      { id: 'a2', title: 'SaaS 行业的下一个十年', summary: '垂直领域 SaaS 的机遇与挑战', url: 'https://example.com/podcast/2' },
-      { id: 'a3', title: '硅谷风投的投资逻辑', summary: '2026年最受关注的赛道盘点', url: 'https://example.com/podcast/3' },
-    ]
-  },
-  {
-    id: 'src2',
-    name: 'UX 研究所',
-    avatar: 'https://picsum.photos/seed/avatar3/100/100',
-    description: '分享最前沿的交互设计与心理学',
-    articles: [
-      { id: 'b1', title: '为什么有些产品让人上瘾？', summary: '解析多变赏赐与投资效应', url: 'https://example.com/article/1' },
-      { id: 'b2', title: '极简设计的核心原则', summary: '少即是多，如何在复杂中做减法', url: 'https://example.com/article/2' },
-      { id: 'b3', title: '深色模式的可用性研究', summary: '对比度与阅读体验的平衡', url: 'https://example.com/article/3' },
-      { id: 'b4', title: '微交互的魅力', summary: '让产品充满生命力的细节设计', url: 'https://example.com/article/4' },
-    ]
-  },
-  {
-    id: 'src3',
-    name: '生活观察家',
-    avatar: 'https://picsum.photos/seed/avatar2/100/100',
-    description: '发现日常生活中的美学',
-    articles: [
-      { id: 'c1', title: '极简主义生活指南', summary: '重新审视自己与物质的关系', url: 'https://example.com/article/5' },
-      { id: 'c2', title: '手冲咖啡的魅力', summary: '从选豆到冲煮的完整体验', url: 'https://example.com/article/6' },
-      { id: 'c3', title: '城市漫步指南', summary: '用脚步丈量城市的温度', url: 'https://example.com/article/7' },
-    ]
-  }
-];
-
-const SourceCard: React.FC<{ source: typeof RECOMMENDED_SOURCES[0], selectedUrl: string, onSelectUrl: (url: string) => void }> = ({ source, selectedUrl, onSelectUrl }) => {
+const SourceCard: React.FC<{ source: SSRSource, selectedUrl: string, onSelectUrl: (url: string) => void }> = ({ source, selectedUrl, onSelectUrl }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -72,7 +31,7 @@ const SourceCard: React.FC<{ source: typeof RECOMMENDED_SOURCES[0], selectedUrl:
           <ChevronDown size={18} />
         </motion.div>
       </div>
-      
+
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -93,8 +52,8 @@ const SourceCard: React.FC<{ source: typeof RECOMMENDED_SOURCES[0], selectedUrl:
                     transition={{ delay: idx * 0.05, duration: 0.3 }}
                     onClick={() => onSelectUrl(article.url)}
                     className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all duration-300 ${
-                      isSelected 
-                        ? 'bg-primary border-primary shadow-[0_0_20px_rgba(72,0,255,0.3)] text-white' 
+                      isSelected
+                        ? 'bg-primary border-primary shadow-[0_0_20px_rgba(72,0,255,0.3)] text-white'
                         : 'bg-surface-light border-white/5 hover:border-primary/50 group'
                     }`}
                   >
@@ -108,8 +67,8 @@ const SourceCard: React.FC<{ source: typeof RECOMMENDED_SOURCES[0], selectedUrl:
                     </div>
                     <div
                       className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center transition-colors ${
-                        isSelected 
-                          ? 'bg-white text-primary' 
+                        isSelected
+                          ? 'bg-white text-primary'
                           : 'bg-white/5 text-primary group-hover:bg-primary group-hover:text-white'
                       }`}
                     >
@@ -132,17 +91,20 @@ export function Generate({ onClose }: { onClose: () => void }) {
   const [inputValue, setInputValue] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('');
   const [generatedPost, setGeneratedPost] = useState<Post | null>(null);
+  const { sources, loading: sourcesLoading, error: sourcesError } = useSSRSources();
+  const { data: styles, loading: stylesLoading } = useStyles();
 
   const handleGenerate = () => {
     setStep(3);
     // Simulate generation (TODO: 临时性的 3 秒展示，后续将根据真实生成时间动态移除)
     setTimeout(() => {
+      const selectedStyleData = styles.find(s => s.id === selectedStyle);
       setGeneratedPost({
         id: 'gen1',
         title: '由 Narrio 自动生成的图文内容',
-        cover: STYLES.find(s => s.id === selectedStyle)?.cover || STYLES[0].cover,
+        cover: selectedStyleData?.cover || styles[0]?.cover || '',
         images: [
-          STYLES.find(s => s.id === selectedStyle)?.cover || STYLES[0].cover,
+          selectedStyleData?.cover || styles[0]?.cover || '',
           'https://picsum.photos/seed/gen2/600/800',
           'https://picsum.photos/seed/gen3/600/800',
         ],
@@ -158,8 +120,8 @@ export function Generate({ onClose }: { onClose: () => void }) {
 
   if (step === 4 && generatedPost) {
     return (
-      <PostDetail 
-        post={generatedPost} 
+      <PostDetail
+        post={generatedPost}
         mode="preview"
         onClose={() => {
           setStep(1);
@@ -167,7 +129,7 @@ export function Generate({ onClose }: { onClose: () => void }) {
           setSelectedStyle('');
           setGeneratedPost(null);
           onClose();
-        }} 
+        }}
       />
     );
   }
@@ -203,7 +165,7 @@ export function Generate({ onClose }: { onClose: () => void }) {
             transition={{ duration: 0.3 }}
             className="flex-1 flex flex-col min-h-0"
           >
-            <div className="flex p-1 bg-surface-light rounded-xl mb-6 font-sans shrink-0">
+            <div className="flex p-1 bg-surface.light rounded-xl mb-6 font-sans shrink-0">
               <button
                 onClick={() => setInputType('text')}
                 className={`flex-1 py-2.5 text-sm font-medium rounded-lg flex items-center justify-center space-x-2 transition-colors ${inputType === 'text' ? 'bg-primary text-white shadow-md' : 'text-white/40 hover:text-white/60'}`}
@@ -240,19 +202,32 @@ export function Generate({ onClose }: { onClose: () => void }) {
                       className="flex-1 bg-transparent border-none focus:outline-none text-white placeholder:text-white/20 font-sans"
                     />
                   </div>
-                  
+
                   <div className="mt-6 flex-1 overflow-y-auto no-scrollbar flex flex-col min-h-0">
                     <h3 className="text-sm font-medium text-white/50 mb-4 shrink-0 px-1">推荐内容</h3>
-                    <div className="space-y-3 pb-4">
-                      {RECOMMENDED_SOURCES.map((source) => (
-                        <SourceCard 
-                          key={source.id} 
-                          source={source} 
-                          selectedUrl={inputValue}
-                          onSelectUrl={(url) => setInputValue(url)} 
-                        />
-                      ))}
-                    </div>
+                    {sourcesLoading && (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                        <span className="ml-3 text-white/70 text-sm">Loading sources...</span>
+                      </div>
+                    )}
+                    {sourcesError && (
+                      <div className="text-red-400 text-sm p-4 bg-red-400/10 rounded-xl">
+                        {sourcesError}
+                      </div>
+                    )}
+                    {!sourcesLoading && !sourcesError && sources.length > 0 && (
+                      <div className="space-y-3 pb-4">
+                        {sources.map((source) => (
+                          <SourceCard
+                            key={source.id}
+                            source={source}
+                            selectedUrl={inputValue}
+                            onSelectUrl={(url) => setInputValue(url)}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -281,31 +256,43 @@ export function Generate({ onClose }: { onClose: () => void }) {
             className="flex-1 flex flex-col min-h-0"
           >
             <h2 className="text-xl font-medium mb-6 shrink-0">选择视觉风格</h2>
-            <div className="grid grid-cols-2 gap-4 flex-1 overflow-y-auto no-scrollbar pb-4 items-start content-start">
-              {STYLES.map((style) => {
-                const isSelected = selectedStyle === style.id;
-                return (
-                  <motion.div
-                    layout
-                    key={style.id}
-                    onClick={() => setSelectedStyle(style.id)}
-                    className={`relative rounded-2xl overflow-hidden border-2 transition-colors cursor-pointer bg-surface flex flex-col ${isSelected ? 'border-primary' : 'border-transparent'}`}
-                  >
-                    <motion.div layout className="relative w-full aspect-[3/4] shrink-0">
-                      <img src={style.cover} alt={style.name} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-transparent flex items-start p-4">
-                        <span className="text-sm font-medium tracking-wide drop-shadow-md">{style.name}</span>
-                      </div>
-                      {isSelected && (
-                        <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center shadow-lg">
-                          <Check size={14} strokeWidth={3} />
+            {stylesLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                <span className="ml-3 text-white/70 text-sm">Loading styles...</span>
+              </div>
+            ) : styles.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <p className="text-white/70 mb-2">No styles available</p>
+                <p className="text-white/40 text-sm">Make sure backend is running and assets/styles/ directory exists</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4 flex-1 overflow-y-auto no-scrollbar pb-4 items-start content-start">
+                {styles.map((style) => {
+                  const isSelected = selectedStyle === style.id;
+                  return (
+                    <motion.div
+                      layout
+                      key={style.id}
+                      onClick={() => setSelectedStyle(style.id)}
+                      className={`relative rounded-2xl overflow-hidden border-2 transition-colors cursor-pointer bg-surface flex flex-col ${isSelected ? 'border-primary' : 'border-transparent'}`}
+                    >
+                      <motion.div layout className="relative w-full aspect-[3/4] shrink-0">
+                        <img src={style.cover} alt={style.name} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-transparent flex items-start p-4">
+                          <span className="text-sm font-medium tracking-wide drop-shadow-md">{style.name}</span>
                         </div>
-                      )}
+                        {isSelected && (
+                          <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center shadow-lg">
+                            <Check size={14} strokeWidth={3} />
+                          </div>
+                        )}
+                      </motion.div>
                     </motion.div>
-                  </motion.div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
 
             <div className="flex space-x-3 mt-auto pt-4 pb-2 font-sans shrink-0 sticky bottom-8 z-20 bg-bg/90 backdrop-blur-xl -mx-6 px-6">
               <button
@@ -335,28 +322,28 @@ export function Generate({ onClose }: { onClose: () => void }) {
           >
             <div className="relative w-96 h-96 mb-8">
               <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse" />
-              <MetallicPaint 
+              <MetallicPaint
                 imageSrc="/N-metallic.svg"
-                seed={42} 
-                scale={4} 
-                patternSharpness={1} 
-                noiseScale={0.5} 
-                speed={0.4} 
-                liquid={0.75} 
-                mouseAnimation={false} 
-                brightness={2} 
-                contrast={0.5} 
-                refraction={0.01} 
-                blur={0.015} 
-                chromaticSpread={2} 
-                fresnel={1} 
-                angle={0} 
-                waveAmplitude={1} 
-                distortion={1} 
-                contour={0.2} 
-                lightColor="#ffffff" 
-                darkColor="#050505" 
-                tintColor="#4800FF" 
+                seed={42}
+                scale={4}
+                patternSharpness={1}
+                noiseScale={0.5}
+                speed={0.4}
+                liquid={0.75}
+                mouseAnimation={false}
+                brightness={2}
+                contrast={0.5}
+                refraction={0.01}
+                blur={0.015}
+                chromaticSpread={2}
+                fresnel={1}
+                angle={0}
+                waveAmplitude={1}
+                distortion={1}
+                contour={0.2}
+                lightColor="#ffffff"
+                darkColor="#050505"
+                tintColor="#4800FF"
               />
             </div>
             <h2 className="text-xl font-medium mb-3">正在释放创作势能</h2>
