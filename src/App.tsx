@@ -46,9 +46,12 @@ export default function App() {
           </button>
           
           <div className="relative w-12 h-10 flex items-center justify-center">
+            {/* Glow effect */}
+            <div className="absolute -top-6 w-[62px] h-[62px] rounded-full bg-primary/80 blur-2xl animate-pulse scale-125" />
+            
             <button 
               onClick={() => setIsGenerateOpen(true)}
-              className="absolute -top-6 flex items-center justify-center w-[62px] h-[62px] rounded-full bg-primary text-white shadow-[0_0_20px_rgba(72,0,255,0.4)] transition-transform active:scale-95"
+              className="absolute -top-6 flex items-center justify-center w-[62px] h-[62px] rounded-full bg-primary text-white shadow-[0_0_35px_rgba(72,0,255,0.8)] transition-transform active:scale-95 z-10"
             >
               <div className="w-[4.2rem] h-[4.2rem] bg-current" style={{ WebkitMaskImage: 'url(/plus.svg)', WebkitMaskSize: 'contain', WebkitMaskRepeat: 'no-repeat', WebkitMaskPosition: 'center', maskImage: 'url(/plus.svg)', maskSize: 'contain', maskRepeat: 'no-repeat', maskPosition: 'center' }} />
             </button>
