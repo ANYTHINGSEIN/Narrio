@@ -77,7 +77,7 @@ export function PostDetail({ post, onClose, mode = 'feed' }: { post: Post; onClo
           {/* Left Side - Image Carousel */}
           <div className="w-1/2 bg-[#050505] relative flex overflow-x-auto snap-x snap-mandatory no-scrollbar">
             {post.images.map((img, idx) => (
-              <div key={idx} className="w-full h-full flex-shrink-0 snap-center relative flex items-center justify-center">
+              <div key={idx} className="w-full h-full flex-shrink-0 snap-center relative flex items-center justify-center aspect-[3/4] min-w-full">
                 <img src={img} alt={`Slide ${idx}`} className="w-full h-full object-cover" />
                 <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-sans text-white border border-white/10">
                   {idx + 1} / {post.images.length}

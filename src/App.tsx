@@ -59,7 +59,7 @@ export default function App() {
               <div className="absolute top-1 w-6 h-6 bg-primary/80 blur-md rounded-full" />
             )}
             <div className={`relative z-10 w-8 h-8 transition-colors ${activeTab === 'explore' ? 'bg-primary' : 'bg-white/40'}`} style={{ WebkitMaskImage: 'url(/explore.svg)', WebkitMaskSize: 'contain', WebkitMaskRepeat: 'no-repeat', WebkitMaskPosition: 'center', maskImage: 'url(/explore.svg)', maskSize: 'contain', maskRepeat: 'no-repeat', maskPosition: 'center' }} />
-            <span className={`relative z-10 text-[10px] font-sans font-medium uppercase tracking-wider transition-colors ${activeTab === 'explore' ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-white/40'}`}>Explore</span>
+            <span className={`relative z-10 text-[10px] font-sans font-medium uppercase tracking-wider transition-colors ${activeTab === 'explore' ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-white/40'}`}>Gallery</span>
           </button>
           
           <div className="relative w-12 h-10 flex items-center justify-center">

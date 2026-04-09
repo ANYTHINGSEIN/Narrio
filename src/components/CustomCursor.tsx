@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export function CustomCursor() {
@@ -7,7 +7,7 @@ export function CustomCursor() {
   const [isVisible, setIsVisible] = useState(false);
   const [clickEffect, setClickEffect] = useState<{ id: number; x: number; y: number } | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Check if device supports hover/has mouse
     const hasMouse = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     if (!hasMouse) return;
@@ -15,10 +15,11 @@ export function CustomCursor() {
     // Add global styles to hide default cursor
     const style = document.createElement('style');
     style.innerHTML = `
-      * {
+      *, *::before, *::after {
         cursor: none !important;
       }
     `;
+    style.setAttribute('data-custom-cursor', 'true');
     document.head.appendChild(style);
 
     let clickId = 0;
@@ -49,7 +50,7 @@ export function CustomCursor() {
     document.addEventListener('mouseenter', handleMouseEnter);
 
     return () => {
-      document.head.removeChild(style);
+      // Keep the style in place - don't remove it so cursor stays hidden
       window.removeEventListener('mousemove', updatePosition);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);

@@ -139,7 +139,7 @@ export function Explore() {
         className="mb-8 px-2"
       >
         <h1 className="text-3xl font-bold mb-2 font-sans tracking-tight">
-          Explore
+          Gallery
         </h1>
         <p className="text-white/50 text-sm">发现由 Narrio 转换的优质内容</p>
       </motion.div>
