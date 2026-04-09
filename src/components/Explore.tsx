@@ -167,8 +167,6 @@ export function Explore() {
               </h3>
               <div className="flex items-center space-x-1.5 text-xs text-white/70 font-sans">
                 <span>{post.author}</span>
-                <span>•</span>
-                <span>{post.likes} likes</span>
               </div>
             </div>
           </motion.div>
