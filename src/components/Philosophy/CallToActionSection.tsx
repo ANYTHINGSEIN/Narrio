@@ -14,17 +14,8 @@ export function CallToActionSection() {
         transition={{ duration: 1.2, ease: "easeOut" }}
         className="relative z-10 flex flex-col items-center justify-center w-full h-full"
       >
-        <div className="text-center flex flex-col items-center gap-2 md:gap-4 relative z-20 mt-[8vh]">
-          <h2 className="text-[clamp(1.75rem,4vh,3.5rem)] font-serif font-light text-white tracking-widest">
-            秒出优质图文
-          </h2>
-          <h2 className="text-[clamp(1.75rem,4vh,3.5rem)] font-serif font-light text-white tracking-widest">
-            释放创作势能
-          </h2>
-        </div>
-
         {/* 动态液态金属 Logo */}
-        <div className="relative w-[clamp(420px,75vh,900px)] h-[clamp(420px,75vh,900px)] flex items-center justify-center -mt-[6vh]">
+        <div className="relative w-[clamp(420px,75vh,900px)] h-[clamp(420px,75vh,900px)] flex items-center justify-center -mb-[20vh] -mt-[10vh]">
           <MetallicPaint 
             imageSrc="/Narrio-text-metallic.svg" 
             seed={42} 
@@ -48,6 +39,15 @@ export function CallToActionSection() {
             darkColor="#050505" 
             tintColor="#4800FF" 
           />
+        </div>
+
+        <div className="text-center flex flex-col items-center gap-2 md:gap-4 relative z-20 pb-[8vh]">
+          <h2 className="text-[clamp(1.75rem,4vh,3.5rem)] font-serif font-light text-white tracking-widest">
+            秒出优质图文
+          </h2>
+          <h2 className="text-[clamp(1.75rem,4vh,3.5rem)] font-serif font-light text-white tracking-widest">
+            释放创作势能
+          </h2>
         </div>
       </motion.div>
     </section>
