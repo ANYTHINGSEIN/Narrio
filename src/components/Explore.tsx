@@ -14,7 +14,7 @@ interface ExplorePost extends Post {
 }
 
 /**
- * Load explore content from public/explore-content directory
+ * Load explore content from backend API
  * Each subdirectory contains: avatar.png, info.json, and numbered PNG images
  */
 function loadExploreContent(): Promise<ExplorePost[]> {
@@ -22,27 +22,34 @@ function loadExploreContent(): Promise<ExplorePost[]> {
     const posts: ExplorePost[] = [];
 
     try {
-      // Fetch directory listing from public/explore-content
-      // Since we can't directly list directories in production, we use a known list
-      const contentDirs = [
-        "The Cure for Execution Tax",
-        "Harness engineering-leveraging Codex in an agent-first world",
-        "Harness design for long-running application",
-        "The Gut Decision Matrix-When to Trust Instinct and Intuition",
-      ];
+      // Fetch directory list from backend API
+      const dirsRes = await fetch("/api/explore/directories");
+      if (!dirsRes.ok) {
+        throw new Error(`Failed to fetch directories: ${dirsRes.status}`);
+      }
+      const dirsData = await dirsRes.json();
+      const contentDirs: string[] = dirsData.data || [];
 
-      // Pre-configured markdown filenames for each directory (filenames are truncated by filesystem)
+      // Pre-configured markdown filenames for each directory
       const mdFileMap: Record<string, string> = {
-        "The Cure for Execution Tax": "The Cure for Execution Tax.md",
-        "Harness engineering-leveraging Codex in an agent-first world": "Harness engineering_ leveraging Codex in....md",
+        "aistrong": "aistrong.md",
+        "Dopamine Serotonin Decisions": "Dopamine Serotonin Decisions.md",
         "Harness design for long-running application": "Harness design for long-running applicat....md",
+        "Harness engineering-leveraging Codex in an agent-first world": "Harness engineering_ leveraging Codex in....md",
+        "The Cure for Execution Tax": "The Cure for Execution Tax.md",
         "The Gut Decision Matrix-When to Trust Instinct and Intuition": "The Gut Decision Matrix_ When to Trust I....md",
+        "请停下「计数器」思维": "请停下「计数器」思维.md",
+        "贪婪的多巴胺": "纵横四海播客：EP78《贪婪的多巴胺》：如何像沉迷游戏一样沉迷学习？.md",
       };
 
       for (const dir of contentDirs) {
         try {
-          // Load info.json
-          const infoRes = await fetch(`/explore-content/${encodeURIComponent(dir)}/info.json`);
+          // Load info.json from backend
+          const infoRes = await fetch(`/api/explore-content/${encodeURIComponent(dir)}/info.json`);
+          if (!infoRes.ok) {
+            console.warn(`Failed to load info.json for ${dir}: ${infoRes.status}`);
+            continue;
+          }
           const info: ExploreContentInfo = await infoRes.json();
 
           // Load markdown content using pre-configured filename
@@ -50,11 +57,9 @@ function loadExploreContent(): Promise<ExplorePost[]> {
           try {
             const mdFileName = mdFileMap[dir];
             if (mdFileName) {
-              const mdRes = await fetch(`/explore-content/${encodeURIComponent(dir)}/${encodeURIComponent(mdFileName)}`);
+              const mdRes = await fetch(`/api/explore-content/${encodeURIComponent(dir)}/${encodeURIComponent(mdFileName)}`);
               if (mdRes.ok) {
                 markdownContent = await mdRes.text();
-              } else {
-                console.warn(`Failed to load markdown ${mdFileName} for ${dir}: ${mdRes.status}`);
               }
             }
           } catch (err) {
@@ -64,7 +69,7 @@ function loadExploreContent(): Promise<ExplorePost[]> {
           // Load images - try to find how many images exist
           const images: string[] = [];
           for (let i = 0; i < 20; i++) {
-            const imgUrl = `/explore-content/${encodeURIComponent(dir)}/${i}.png`;
+            const imgUrl = `/api/explore-content/${encodeURIComponent(dir)}/${i}.png`;
             const exists = await imageExists(imgUrl);
             if (exists) {
               images.push(imgUrl);
@@ -82,7 +87,7 @@ function loadExploreContent(): Promise<ExplorePost[]> {
               originalType: "article",
               originalContent: markdownContent,
               author: info.author,
-              avatar: `/explore-content/${encodeURIComponent(dir)}/avatar.png`,
+              avatar: `/api/explore-content/${encodeURIComponent(dir)}/avatar.png`,
               likes: 0,
               dirName: dir,
             };

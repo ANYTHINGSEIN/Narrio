@@ -2,47 +2,47 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import fs from 'fs';
-import {defineConfig, loadEnv} from 'vite';
+import {defineConfig, loadEnv, Plugin} from 'vite';
 
-// A simple plugin to save plasma.png directly from dev server
-const plasmaSavePlugin = () => {
+// 插件：保存 plasma.png
+const plasmaSavePlugin = (): Plugin => {
   return {
     name: 'plasma-save-plugin',
     configureServer(server) {
-      server.middlewares.use('/api/save-plasma', (req, res, next) => {
+      server.middlewares.use('/api/save-plasma', (req: any, res: any, next: any) => {
         if (req.method === 'POST') {
           let body = '';
-          req.on('data', chunk => {
+          req.on('data', (chunk: any) => {
             body += chunk.toString();
           });
           req.on('end', () => {
             try {
-              const { image } = JSON.parse(body);
+              const {image} = JSON.parse(body);
               if (!image) throw new Error('No image data provided');
-              
+
               // Remove the data URI header "data:image/png;base64,"
-              const base64Data = image.replace(/^data:image\/png;base64,/, "");
-              
+              const base64Data = image.replace(/^data:image\/png;base64,/, '');
+
               const targetDir = '/Users/kaiserwetter/Projects/26-Project/2604-Narrio/Narrio/ppt-asset';
               if (!fs.existsSync(targetDir)) {
-                fs.mkdirSync(targetDir, { recursive: true });
+                fs.mkdirSync(targetDir, {recursive: true});
               }
-              
+
               let filename = 'plasma.png';
               let filePath = path.join(targetDir, filename);
               let counter = 1;
-              
+
               while (fs.existsSync(filePath)) {
                 filename = `plasma-${counter}.png`;
                 filePath = path.join(targetDir, filename);
                 counter++;
               }
-              
+
               fs.writeFileSync(filePath, base64Data, 'base64');
-              
+
               res.statusCode = 200;
-              res.end(JSON.stringify({ success: true, filename, path: filePath }));
-            } catch (err) {
+              res.end(JSON.stringify({success: true, filename, path: filePath}));
+            } catch (err: any) {
               res.statusCode = 500;
               res.end(err.message);
             }

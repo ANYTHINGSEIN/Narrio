@@ -157,92 +157,41 @@ export const MOCK_POSTS: Post[] = [
   },
 ];
 
-// Mock posts from explore-content directory (temporary fallback)
-// Used when API data is not available
-export const EXPLORE_MOCK_POSTS: Post[] = [
-  {
-    id: "explore-1",
-    title: "The Cure for Execution Tax",
-    cover: "/explore-content/The Cure for Execution Tax/0.png",
-    images: Array.from(
-      { length: 8 },
-      (_, i) => `/explore-content/The Cure for Execution Tax/${i}.png`,
-    ),
-    originalType: "article",
-    originalContent: `# The cure for "execution tax"
+/**
+ * 动态生成 explore-content 目录下的所有内容项
+ * 每个子目录对应一个 Post 项
+ *
+ * 目录列表和内容数据由 Vite 插件在构建时自动生成
+ */
+const EXPLORE_DIRECTORIES: string[] = JSON.parse(
+  (import.meta.env.VITE_EXPLORE_DIRECTORIES as string) || '[]'
+);
 
-Dan Gilbert has a name for the thing quietly draining companies everywhere: **execution tax**.
+const EXPLORE_CONTENTS: Record<string, { info: { title?: string; author?: string }; md: string }> =
+  JSON.parse((import.meta.env.VITE_EXPLORE_CONTENTS as string) || '{}');
 
-It's the gap between a decision and its outcome. Between *we should do this* and *this is done*. "Every meeting creates more work," explains Dan. "More notes. More summaries of notes. More sharing those notes. Action items captured---and quietly lost."
+export const EXPLORE_MOCK_POSTS: Post[] = EXPLORE_DIRECTORIES.map((dirName) => {
+  const content = EXPLORE_CONTENTS[dirName] || { info: {}, md: '' };
+  const info = content.info;
+  const originalContent = content.md || '';
 
-Dan is Global CEO of Brainlabs, a 1,000-person media agency operating across seven countries. Data-driven, scientific, laser-focused on driving client revenue. The kind of company where every hour spent chasing action items is an hour not spent on strategy.
+  // 生成图片路径列表（假设图片从 0.png 开始连续编号）
+  // 实际数量需要通过检查文件是否存在来确定
+  const imagePaths: string[] = [];
+  for (let i = 0; i < 50; i++) {
+    const imgPath = `/explore-content/${dirName}/${i}.png`;
+    imagePaths.push(imgPath);
+  }
 
-He's watched AI transform the input/output ratio of engineering work. The data bears it out: top-performing engineering teams using AI are seeing double-digit productivity gains and measurable jumps in quality. But for everyone---the strategists, account managers, and operators---the gap between deciding and doing was still achingly wide.
-
-So Dan asked the question that changed everything at Brainlabs: **When does the 10x moment arrive for the knowledge worker?**
-
-He stopped waiting for someone else to answer it.`,
-    author: "Harness",
-    avatar: "https://via.placeholder.com/100x100/4800FF/ffffff?text=H",
+  return {
+    id: `explore-${dirName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+    title: info.title || dirName,
+    cover: `/explore-content/${dirName}/0.png`,
+    images: imagePaths,
+    originalType: 'article' as const,
+    originalContent: originalContent || `# ${info.title || dirName}`,
+    author: info.author || 'Harness',
+    avatar: `/explore-content/${dirName}/avatar.png`,
     likes: 0,
-  },
-  {
-    id: "explore-2",
-    title: "Harness engineering-leveraging Codex",
-    cover:
-      "/explore-content/Harness engineering-leveraging Codex in an agent-first world/0.png",
-    images: Array.from(
-      { length: 8 },
-      (_, i) =>
-        `/explore-content/Harness engineering-leveraging Codex in an agent-first world/${i}.png`,
-    ),
-    originalType: "article",
-    originalContent: `# Harness Engineering: Leveraging Codex in an Agent-First World
-
-The future of engineering is here. AI-powered agents are transforming how teams build software.
-
-In this article, we explore how Harness is leveraging Codex and AI-first tools to accelerate development velocity.`,
-    author: "Harness",
-    avatar: "https://via.placeholder.com/100x100/4800FF/ffffff?text=H",
-    likes: 0,
-  },
-  {
-    id: "explore-3",
-    title: "Harness Design for Long-Running Applications",
-    cover: "/explore-content/Harness design for long-running application/0.png",
-    images: Array.from(
-      { length: 7 },
-      (_, i) =>
-        `/explore-content/Harness design for long-running application/${i}.png`,
-    ),
-    originalType: "article",
-    originalContent: `# Harness Design for Long-Running Applications
-
-Building applications that run for extended periods requires careful consideration of state management, monitoring, and recovery.
-
-This guide covers best practices for designing resilient, long-running applications.`,
-    author: "Harness",
-    avatar: "https://via.placeholder.com/100x100/4800FF/ffffff?text=H",
-    likes: 0,
-  },
-  {
-    id: "explore-4",
-    title: "The Gut Decision Matrix",
-    cover:
-      "/explore-content/The Gut Decision Matrix-When to Trust Instinct and Intuition/0.png",
-    images: Array.from(
-      { length: 5 },
-      (_, i) =>
-        `/explore-content/The Gut Decision Matrix-When to Trust Instinct and Intuition/${i}.png`,
-    ),
-    originalType: "article",
-    originalContent: `# The Gut Decision Matrix: When to Trust Instinct and Intuition
-
-Knowing when to trust your gut versus when to rely on data is a critical leadership skill.
-
-The Gut Decision Matrix provides a framework for making better decisions by understanding when intuition serves you well and when it might lead you astray.`,
-    author: "Harness",
-    avatar: "https://via.placeholder.com/100x100/4800FF/ffffff?text=H",
-    likes: 0,
-  },
-];
+  };
+});
