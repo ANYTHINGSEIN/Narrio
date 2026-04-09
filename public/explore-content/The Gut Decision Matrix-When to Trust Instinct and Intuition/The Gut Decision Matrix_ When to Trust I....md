@@ -1,5 +1,3 @@
-# The Gut Decision Matrix: When to Trust Instinct and Intuition
-
 [nesslabs.com](https://nesslabs.com/gut-decision-matrix) Anne-Laure Le Cunff
 
 We often talk about "trusting our gut." But the gut feelings people refer to can actually stem from two very different sources: instinct and intuition. Because they feel so similar (fast, automatic, sometimes emotional) we tend to treat them the same, which can lead to poor decision-making in many situations.

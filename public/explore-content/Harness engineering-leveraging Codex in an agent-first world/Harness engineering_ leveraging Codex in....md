@@ -1,5 +1,3 @@
-# Harness engineering: leveraging Codex in an agent-first world
-
 [openai.com](https://openai.com/index/harness-engineering/)
 
 Over the past five months, our team has been running an experiment: building and shipping an internal beta of a software product with**0 lines of manually-written code** .

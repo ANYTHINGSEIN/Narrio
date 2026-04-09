@@ -1,5 +1,3 @@
-# Get the developer newsletter
-
 [www.anthropic.com](https://www.anthropic.com/engineering/harness-design-long-running-apps)
 
 *Written by Prithvi Rajasekaran, a member of our[Labs](https://www.anthropic.com/news/introducing-anthropic-labs) team.*

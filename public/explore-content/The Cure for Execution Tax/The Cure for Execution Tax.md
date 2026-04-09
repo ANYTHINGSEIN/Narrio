@@ -1,5 +1,3 @@
-# The cure for "execution tax"
-
 [www.notion.com](https://www.notion.com/blog/brainlabs-cure-for-execution-tax) Áine Dundas
 
 Dan Gilbert has a name for the thing quietly draining companies everywhere: **execution tax**.

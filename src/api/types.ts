@@ -118,7 +118,6 @@ export interface SSRSourceArticle {
   title: string;
   summary: string;
   url: string;
-  cover: string;
 }
 
 export interface SSRSourceListResponse {

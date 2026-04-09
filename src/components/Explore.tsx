@@ -1,14 +1,137 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { PostDetail } from "./PostDetail";
-import { EXPLORE_MOCK_POSTS } from "../mockData";
 import type { Post } from "../types";
 
-// Use mock data for explore view (temporary fallback until API data is available)
-const POSTS = EXPLORE_MOCK_POSTS;
+interface ExploreContentInfo {
+  title: string;
+  author: string;
+}
+
+interface ExplorePost extends Post {
+  dirName: string;
+  content?: string; // markdown content
+}
+
+/**
+ * Load explore content from public/explore-content directory
+ * Each subdirectory contains: avatar.png, info.json, and numbered PNG images
+ */
+function loadExploreContent(): Promise<ExplorePost[]> {
+  return new Promise(async (resolve) => {
+    const posts: ExplorePost[] = [];
+
+    try {
+      // Fetch directory listing from public/explore-content
+      // Since we can't directly list directories in production, we use a known list
+      const contentDirs = [
+        "The Cure for Execution Tax",
+        "Harness engineering-leveraging Codex in an agent-first world",
+        "Harness design for long-running application",
+        "The Gut Decision Matrix-When to Trust Instinct and Intuition",
+      ];
+
+      // Pre-configured markdown filenames for each directory (filenames are truncated by filesystem)
+      const mdFileMap: Record<string, string> = {
+        "The Cure for Execution Tax": "The Cure for Execution Tax.md",
+        "Harness engineering-leveraging Codex in an agent-first world": "Harness engineering_ leveraging Codex in....md",
+        "Harness design for long-running application": "Harness design for long-running applicat....md",
+        "The Gut Decision Matrix-When to Trust Instinct and Intuition": "The Gut Decision Matrix_ When to Trust I....md",
+      };
+
+      for (const dir of contentDirs) {
+        try {
+          // Load info.json
+          const infoRes = await fetch(`/explore-content/${encodeURIComponent(dir)}/info.json`);
+          const info: ExploreContentInfo = await infoRes.json();
+
+          // Load markdown content using pre-configured filename
+          let markdownContent = "";
+          try {
+            const mdFileName = mdFileMap[dir];
+            if (mdFileName) {
+              const mdRes = await fetch(`/explore-content/${encodeURIComponent(dir)}/${encodeURIComponent(mdFileName)}`);
+              if (mdRes.ok) {
+                markdownContent = await mdRes.text();
+              } else {
+                console.warn(`Failed to load markdown ${mdFileName} for ${dir}: ${mdRes.status}`);
+              }
+            }
+          } catch (err) {
+            console.warn(`Failed to load markdown for ${dir}:`, err);
+          }
+
+          // Load images - try to find how many images exist
+          const images: string[] = [];
+          for (let i = 0; i < 20; i++) {
+            const imgUrl = `/explore-content/${encodeURIComponent(dir)}/${i}.png`;
+            const exists = await imageExists(imgUrl);
+            if (exists) {
+              images.push(imgUrl);
+            } else {
+              break;
+            }
+          }
+
+          if (images.length > 0) {
+            const post: ExplorePost = {
+              id: `explore-${dir}`,
+              title: info.title,
+              cover: images[0],
+              images: images,
+              originalType: "article",
+              originalContent: markdownContent,
+              author: info.author,
+              avatar: `/explore-content/${encodeURIComponent(dir)}/avatar.png`,
+              likes: 0,
+              dirName: dir,
+            };
+            posts.push(post);
+          }
+        } catch (err) {
+          console.warn(`Failed to load content from ${dir}:`, err);
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to load explore content:", err);
+    }
+
+    resolve(posts);
+  });
+}
+
+/**
+ * Check if an image exists by attempting to load it
+ */
+function imageExists(url: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = url;
+  });
+}
 
 export function Explore() {
+  const [posts, setPosts] = useState<ExplorePost[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+
+  useEffect(() => {
+    loadExploreContent().then((result) => {
+      setPosts(result);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+        <span className="ml-3 text-white/70 text-sm">Loading content...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-32 px-4 pt-12 max-w-7xl mx-auto">
@@ -24,7 +147,7 @@ export function Explore() {
       </motion.div>
 
       <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-        {POSTS.map((post, idx) => (
+        {posts.map((post, idx) => (
           <motion.div
             key={post.id}
             initial={{ opacity: 0, y: 20 }}
