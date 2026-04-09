@@ -15,12 +15,12 @@ export function TargetAudienceSection() {
           whileInView={{ opacity: 1, y: 0 }} 
           viewport={{ once: true, margin: "-100px" }} 
           transition={{ duration: 1, ease: "easeOut" }} 
-          className="text-center flex flex-col items-center gap-8"
+          className="text-center flex flex-col items-center gap-10"
         >
-          <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-serif leading-tight font-light text-white tracking-wide">
+          <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-serif leading-tight font-light text-white tracking-wide">
             好的内容，<br className="md:hidden" />不应该被形式锁住
           </h2>
-          <p className="text-[clamp(1rem,1.2vw,1.25rem)] text-white/60 font-light leading-relaxed max-w-4xl text-center">
+          <p className="text-[clamp(1.125rem,1.5vw,1.5rem)] text-white/60 font-light leading-[2] max-w-5xl text-center tracking-wide">
             这个世界上思考最有深度的一群人，擅长创作长文与播客。
             <br className="hidden md:block" />
             却往往因为缺乏设计与排版能力，在图文媒体中表现糟糕，无法触达目标用户。
