@@ -4,6 +4,7 @@ import { Explore } from './components/Explore';
 import { Generate } from './components/Generate';
 import { Philosophy } from './components/Philosophy/index';
 import { PlasmaPage } from './components/PlasmaPage';
+import { CustomCursor } from './components/CustomCursor';
 
 type Tab = 'explore' | 'philosophy';
 
@@ -13,7 +14,12 @@ export default function App() {
 
   // If we are on the /plasma route, just render the plasma page
   if (typeof window !== 'undefined' && window.location.pathname === '/plasma') {
-    return <PlasmaPage />;
+    return (
+      <>
+        <CustomCursor />
+        <PlasmaPage />
+      </>
+    );
   }
 
   const isIsolatedSection = new URLSearchParams(window.location.search).has('section');
@@ -22,6 +28,7 @@ export default function App() {
   if (isIsolatedSection) {
     return (
       <div className="min-h-screen bg-bg text-white font-serif selection:bg-primary/30">
+        <CustomCursor />
         <Philosophy />
       </div>
     );
@@ -29,6 +36,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-bg text-white font-serif selection:bg-primary/30">
+      <CustomCursor />
       {/* Main Content Area */}
       <main>
         {activeTab === 'explore' && <Explore />}
