@@ -44,7 +44,6 @@ export function ShowcaseSection() {
         </h2>
         <p className="text-[clamp(1rem,1.2vw,1.25rem)] text-white/60 font-light max-w-2xl text-center">
           告别繁琐的排版与设计，将您的深度思考自动转化为极具视觉张力的精美图文。<br className="hidden md:block" />
-          （将鼠标悬停在图文上查看手风琴展开效果）
         </p>
       </motion.div>
 
