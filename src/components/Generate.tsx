@@ -451,38 +451,40 @@ export function Generate({ onClose }: { onClose: () => void }) {
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 flex-1 overflow-y-auto no-scrollbar pb-4 items-start content-start">
-                  {styles.map((style) => {
-                    const isSelected = selectedStyle === style.id;
-                    return (
-                      <motion.div
-                        layout
-                        key={style.id}
-                        onClick={() => setSelectedStyle(style.id)}
-                        className={`relative rounded-2xl overflow-hidden border-2 transition-colors cursor-pointer bg-surface flex flex-col ${isSelected ? "border-primary" : "border-transparent"}`}
-                      >
-                        {/* Title bar */}
-                        <div className="bg-surface-light px-4 py-3 border-b border-white/5">
-                          <span className="text-sm font-medium text-white/90">
-                            {style.name}
-                          </span>
-                        </div>
-                        {/* Preview image */}
-                        <div className="relative w-full aspect-[3/4] shrink-0">
-                          <img
-                            src={style.cover}
-                            alt={style.name}
-                            className="w-full h-full object-cover"
-                          />
-                          {isSelected && (
-                            <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center shadow-lg">
-                              <Check size={14} strokeWidth={3} />
-                            </div>
-                          )}
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+                <div className="flex-1 overflow-y-auto no-scrollbar -mx-2 px-2">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-6 auto-rows-min pb-4">
+                    {styles.map((style) => {
+                      const isSelected = selectedStyle === style.id;
+                      return (
+                        <motion.div
+                          layout
+                          key={style.id}
+                          onClick={() => setSelectedStyle(style.id)}
+                          className={`relative rounded-2xl overflow-hidden border-2 transition-colors cursor-pointer bg-surface flex flex-col ${isSelected ? "border-primary" : "border-transparent"}`}
+                        >
+                          {/* Title bar */}
+                          <div className="bg-surface-light px-4 py-3 border-b border-white/5">
+                            <span className="text-sm font-medium text-white/90">
+                              {style.name}
+                            </span>
+                          </div>
+                          {/* Preview image */}
+                          <div className="relative w-full aspect-[3/4] shrink-0">
+                            <img
+                              src={style.cover}
+                              alt={style.name}
+                              className="w-full h-full object-cover"
+                            />
+                            {isSelected && (
+                              <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center shadow-lg">
+                                <Check size={14} strokeWidth={3} />
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
