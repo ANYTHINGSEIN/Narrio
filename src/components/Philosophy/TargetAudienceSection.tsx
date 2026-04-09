@@ -53,7 +53,7 @@ export function TargetAudienceSection() {
                 />
               </div>
               <div className="text-[clamp(1.5rem,3vw,2.5rem)] font-light text-white/80 font-serif tracking-wide">
-                为解决错配而生
+                为深度创作者而生！
               </div>
             </div>
 
