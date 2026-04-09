@@ -2,6 +2,7 @@ import { HeroSection } from './HeroSection';
 import { TargetAudienceSection } from './TargetAudienceSection';
 import { SolutionSection } from './SolutionSection';
 import { ShowcaseSection } from './ShowcaseSection';
+import { CallToActionSection } from './CallToActionSection';
 
 export function Philosophy() {
   return (
@@ -10,6 +11,7 @@ export function Philosophy() {
       <TargetAudienceSection />
       <SolutionSection />
       <ShowcaseSection />
+      <CallToActionSection />
     </div>
   );
 }

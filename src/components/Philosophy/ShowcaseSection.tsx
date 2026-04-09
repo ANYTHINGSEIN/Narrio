@@ -5,22 +5,22 @@ const cardSets = [
   {
     id: "set1",
     folder: "Harness design for long-running application",
-    images: ["0.png", "1.png", "2.png", "4.png", "5.png"]
+    images: ["1.png", "2.png", "0.png", "4.png", "5.png"]
   },
   {
     id: "set2",
     folder: "Harness engineering-leveraging Codex in an agent-first world",
-    images: ["0.png", "1.png", "2.png", "3.png", "4.png"]
+    images: ["1.png", "2.png", "0.png", "3.png", "4.png"]
   },
   {
     id: "set3",
     folder: "The Cure for Execution Tax",
-    images: ["0.png", "1.png", "2.png", "3.png", "4.png"]
+    images: ["1.png", "2.png", "0.png", "3.png", "4.png"]
   },
   {
     id: "set4",
     folder: "The Gut Decision Matrix-When to Trust Instinct and Intuition",
-    images: ["0.png", "1.png", "2.png", "3.png", "4.png"]
+    images: ["1.png", "2.png", "0.png", "3.png", "4.png"]
   }
 ];
 
