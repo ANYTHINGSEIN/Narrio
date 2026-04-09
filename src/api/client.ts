@@ -54,7 +54,8 @@ async function request<T>(endpoint: string, config?: RequestConfig): Promise<T> 
       throw new ApiErrorImpl(result.error.code, result.error.message, result.error.details);
     }
 
-    const data = result.data !== undefined ? result.data : result;
+    // Return the full response envelope so callers can access metadata like 'total'
+    const data = result as unknown as T;
 
     // Cache successful GET responses
     if (!config?.skipCache && config?.method !== 'POST' && config?.method !== 'PUT' && config?.method !== 'DELETE') {

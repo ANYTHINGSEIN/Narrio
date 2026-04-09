@@ -104,6 +104,8 @@ export function useWebSocket(jobId: string | null) {
   const [status, setStatus] = useState<JobStatus | null>(null);
   const [progress, setProgress] = useState(0);
   const [stage, setStage] = useState<string | null>(null);
+  const [result, setResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -116,38 +118,53 @@ export function useWebSocket(jobId: string | null) {
         'http',
         'ws'
       ).replace('https', 'wss');
-      const ws = new WebSocket(`${wsUrl}/ws/jobs/${jobId}`);
+      const fullWsUrl = `${wsUrl}/ws/jobs/${jobId}`;
+      console.log('[useWebSocket] Connecting to:', fullWsUrl);
+      const ws = new WebSocket(fullWsUrl);
 
       ws.onopen = () => {
+        console.log('[useWebSocket] Connected successfully');
         setConnected(true);
       };
 
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
+          console.log('[useWebSocket] Received message:', data);
+
+          // Update status, progress, and stage from any message
           if (data.status) setStatus(data.status);
           if (data.progress !== undefined) setProgress(data.progress);
-          if (data.stage) setStage(data.stage);
+          if (data.stage !== undefined) setStage(data.stage);
+          if (data.result !== undefined) {
+            console.log('[useWebSocket] Received result data:', data.result);
+            setResult(data.result);
+          }
+          if (data.error !== undefined) {
+            setError(data.error);
+          }
 
           // Handle initial status message
           if (data.type === 'initial') {
+            console.log('[useWebSocket] Initial status:', data);
             setStatus(data.status);
             setProgress(data.progress);
             setStage(data.stage);
           }
         } catch (e) {
-          console.error('Failed to parse WebSocket message:', e);
+          console.error('[useWebSocket] Failed to parse WebSocket message:', e);
         }
       };
 
-      ws.onclose = () => {
+      ws.onclose = (event) => {
+        console.log('[useWebSocket] Connection closed:', event.code, event.reason);
         setConnected(false);
-        // Attempt reconnection with exponential backoff
-        setTimeout(connect, Math.min(1000 * Math.pow(2, 5), 30000));
+        // Attempt reconnection with exponential backoff (max 5 seconds)
+        setTimeout(connect, Math.min(1000 * Math.pow(2, 3), 5000));
       };
 
       ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        console.error('[useWebSocket] WebSocket error:', error);
       };
 
       wsRef.current = ws;
@@ -163,7 +180,7 @@ export function useWebSocket(jobId: string | null) {
     };
   }, [jobId]);
 
-  return { connected, status, progress, stage };
+  return { connected, status, progress, stage, result, error };
 }
 
 /**
@@ -173,6 +190,11 @@ export function useJobStatus(jobId: string | null, pollInterval: number = 2000) 
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const refresh = useCallback(() => {
+    setRefreshTrigger(prev => prev + 1);
+  }, []);
 
   useEffect(() => {
     if (!jobId) {
@@ -187,6 +209,7 @@ export function useJobStatus(jobId: string | null, pollInterval: number = 2000) 
       try {
         const result = await getJobStatus(jobId);
         if (!cancelled) {
+          console.log('[useJobStatus] Fetched job status:', result);
           setJob(result);
           setError(null);
         }
@@ -210,9 +233,9 @@ export function useJobStatus(jobId: string | null, pollInterval: number = 2000) 
       abortController.abort();
       clearInterval(intervalId);
     };
-  }, [jobId, pollInterval]);
+  }, [jobId, pollInterval, refreshTrigger]);
 
-  return { job, loading, error };
+  return { job, loading, error, refresh };
 }
 
 /**

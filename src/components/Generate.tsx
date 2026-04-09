@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link as LinkIcon, Type, Sparkles, ArrowRight, Check, Plus, ChevronDown, X } from 'lucide-react';
 import { PostDetail } from './PostDetail';
 import type { Post } from '../types';
 import { useSSRSources } from '../api/hooks-ssr';
-import { useStyles } from '../api/hooks';
-import type { SSRSource, Style } from '../api/types';
+import { useStyles, useGeneration, useJobStatus, useWebSocket } from '../api/hooks';
+import type { SSRSource } from '../api/types';
 
 import MetallicPaint from './MetallicPaint';
 
@@ -91,31 +91,116 @@ export function Generate({ onClose }: { onClose: () => void }) {
   const [inputValue, setInputValue] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('');
   const [generatedPost, setGeneratedPost] = useState<Post | null>(null);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [generationError, setGenerationError] = useState<string | null>(null);
+
   const { sources, loading: sourcesLoading, error: sourcesError } = useSSRSources();
   const { data: styles, loading: stylesLoading } = useStyles();
+  const { createGeneration } = useGeneration();
+  const { job, refresh: refreshJobStatus } = useJobStatus(jobId);
+  const {
+    connected: wsConnected,
+    status: wsStatus,
+    progress: wsProgress,
+    stage: wsStage,
+    result: wsResult,
+    error: wsError
+  } = useWebSocket(jobId);
 
-  const handleGenerate = () => {
-    setStep(3);
-    // Simulate generation (TODO: 临时性的 3 秒展示，后续将根据真实生成时间动态移除)
-    setTimeout(() => {
-      const selectedStyleData = styles.find(s => s.id === selectedStyle);
-      setGeneratedPost({
-        id: 'gen1',
-        title: '由 Narrio 自动生成的图文内容',
-        cover: selectedStyleData?.cover || styles[0]?.cover || '',
-        images: [
-          selectedStyleData?.cover || styles[0]?.cover || '',
-          'https://picsum.photos/seed/gen2/600/800',
-          'https://picsum.photos/seed/gen3/600/800',
-        ],
-        originalType: inputType === 'link' ? 'podcast' : 'article',
-        originalContent: inputValue || '这是您输入的内容转换而来的图文排版。Narrio 提取了核心观点，并匹配了最适合的视觉风格。',
-        author: 'Narrio Creator',
-        avatar: 'https://picsum.photos/seed/avatar/100/100',
-        likes: 0,
-      });
-      setStep(4);
-    }, 3000);
+  // When WebSocket receives COMPLETED status but no result, immediately refresh job data
+  useEffect(() => {
+    if (wsStatus === 'COMPLETED' && !wsResult && !job?.result && step === 3) {
+      console.log('[Generate] WebSocket shows COMPLETED but no result yet, refreshing job status...');
+      refreshJobStatus();
+    }
+  }, [wsStatus, wsResult, job?.result, step, refreshJobStatus]);
+
+  // Monitor job status from both WebSocket and polling, and update UI when completed
+  useEffect(() => {
+    // Use WebSocket status if available, otherwise fall back to polled job status
+    const currentStatus = wsStatus || job?.status;
+    const currentResult = wsResult || job?.result;
+    const currentError = wsError || job?.error;
+    const isCompleted = currentStatus === 'COMPLETED';
+    const isFailed = currentStatus === 'FAILED';
+
+    console.log('[Generate] Status check:', {
+      currentStatus,
+      isCompleted,
+      hasWsResult: !!wsResult,
+      hasJobResult: !!job?.result,
+      hasResult: !!currentResult,
+      step
+    });
+
+    if ((isCompleted || isFailed) && step === 3) {
+      if (isCompleted && currentResult) {
+        console.log('[Generate] Job completed, building post from result:', currentResult);
+        // Build Post from job result
+        const selectedStyleData = styles.find(s => s.id === selectedStyle);
+        const post: Post = {
+          id: jobId || 'unknown',
+          title: '由 Narrio 自动生成的图文内容',
+          cover: selectedStyleData?.cover || styles[0]?.cover || '',
+          images: currentResult.images?.map((img: any) => img.url || img) || [
+            selectedStyleData?.cover || styles[0]?.cover || '',
+          ],
+          originalType: inputType === 'link' ? 'podcast' : 'article',
+          originalContent: inputValue || '这是您输入的内容转换而来的图文排版。',
+          author: 'Narrio Creator',
+          avatar: 'https://picsum.photos/seed/avatar/100/100',
+          likes: 0,
+          audioUrl: currentResult.audio_url,
+        };
+        setGeneratedPost(post);
+        setStep(4);
+      } else if (isFailed) {
+        // Show error with retry option
+        setGenerationError(currentError || '生成失败，请重试');
+      }
+    }
+  }, [wsStatus, wsResult, wsError, job?.status, job?.result, job?.error, step, selectedStyle, styles, inputType, inputValue, jobId]);
+
+  // Log WebSocket connection status for debugging
+  useEffect(() => {
+    if (jobId) {
+      console.log('[Generate] WebSocket status:', { connected: wsConnected, status: wsStatus, progress: wsProgress, stage: wsStage });
+    }
+  }, [jobId, wsConnected, wsStatus, wsProgress, wsStage]);
+
+  const handleGenerate = async () => {
+    console.log('handleGenerate called', { inputType, inputValue, selectedStyle });
+    try {
+      console.log('Calling createGeneration with:', inputType === 'link' ? 'url' : inputType, inputValue, selectedStyle);
+      // Wait for React state to update before starting heavy work
+      setGenerationError(null);
+      setStep(3);
+      
+      // Let the UI render the loading state first before making API call
+      setTimeout(async () => {
+        try {
+          const result = await createGeneration(inputType === 'link' ? 'url' : inputType, inputValue, selectedStyle);
+          console.log('createGeneration result:', result);
+          if (result?.id) {
+            setJobId(result.id);
+          } else {
+            setGenerationError('创建任务失败：未能获取任务ID');
+          }
+        } catch (err) {
+          console.error('Failed to create generation API call:', err);
+          setGenerationError('创建任务失败，请重试');
+        }
+      }, 50);
+    } catch (err) {
+      console.error('Failed to create generation setup:', err);
+      setGenerationError('创建任务失败，请重试');
+    }
+  };
+
+  const handleRetry = () => {
+    setGenerationError(null);
+    setJobId(null);
+    handleGenerate();
   };
 
   if (step === 4 && generatedPost) {
@@ -267,7 +352,7 @@ export function Generate({ onClose }: { onClose: () => void }) {
                 <p className="text-white/40 text-sm">Make sure backend is running and assets/styles/ directory exists</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-4 flex-1 overflow-y-auto no-scrollbar pb-4 items-start content-start">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 flex-1 overflow-y-auto no-scrollbar pb-4 items-start content-start">
                 {styles.map((style) => {
                   const isSelected = selectedStyle === style.id;
                   return (
@@ -277,17 +362,19 @@ export function Generate({ onClose }: { onClose: () => void }) {
                       onClick={() => setSelectedStyle(style.id)}
                       className={`relative rounded-2xl overflow-hidden border-2 transition-colors cursor-pointer bg-surface flex flex-col ${isSelected ? 'border-primary' : 'border-transparent'}`}
                     >
-                      <motion.div layout className="relative w-full aspect-[3/4] shrink-0">
+                      {/* Title bar */}
+                      <div className="bg-surface-light px-4 py-3 border-b border-white/5">
+                        <span className="text-sm font-medium text-white/90">{style.name}</span>
+                      </div>
+                      {/* Preview image */}
+                      <div className="relative w-full aspect-[3/4] shrink-0">
                         <img src={style.cover} alt={style.name} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-transparent flex items-start p-4">
-                          <span className="text-sm font-medium tracking-wide drop-shadow-md">{style.name}</span>
-                        </div>
                         {isSelected && (
                           <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center shadow-lg">
                             <Check size={14} strokeWidth={3} />
                           </div>
                         )}
-                      </motion.div>
+                      </div>
                     </motion.div>
                   );
                 })}
@@ -320,36 +407,89 @@ export function Generate({ onClose }: { onClose: () => void }) {
             animate={{ opacity: 1 }}
             className="flex-1 flex flex-col items-center justify-center"
           >
-            <div className="relative w-96 h-96 mb-8">
-              <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse" />
-              <MetallicPaint
-                imageSrc="/N-metallic.svg"
-                seed={42}
-                scale={4}
-                patternSharpness={1}
-                noiseScale={0.5}
-                speed={0.4}
-                liquid={0.75}
-                mouseAnimation={false}
-                brightness={2}
-                contrast={0.5}
-                refraction={0.01}
-                blur={0.015}
-                chromaticSpread={2}
-                fresnel={1}
-                angle={0}
-                waveAmplitude={1}
-                distortion={1}
-                contour={0.2}
-                lightColor="#ffffff"
-                darkColor="#050505"
-                tintColor="#4800FF"
-              />
-            </div>
-            <h2 className="text-xl font-medium mb-3">正在释放创作势能</h2>
-            <p className="text-white/40 text-sm text-center max-w-[240px] leading-relaxed">
-              AI 正在提取核心观点并进行视觉排版，请稍候...
-            </p>
+            {job?.status === 'FAILED' || generationError ? (
+              <>
+                <div className="w-20 h-20 rounded-full bg-red-400/10 flex items-center justify-center mb-6">
+                  <X size={40} className="text-red-400" />
+                </div>
+                <h2 className="text-xl font-medium mb-3 text-red-400">生成失败</h2>
+                <p className="text-white/60 text-sm text-center max-w-[280px] leading-relaxed mb-2">
+                  {generationError || job?.error || '抱歉，生成过程中出现了错误'}
+                </p>
+                <div className="flex space-x-3 mt-8">
+                  <button
+                    onClick={() => {
+                      setStep(2);
+                      setGenerationError(null);
+                      setJobId(null);
+                    }}
+                    className="px-6 py-3 rounded-2xl bg-surface-light text-white font-medium transition-colors hover:bg-white/10"
+                  >
+                    返回选择风格
+                  </button>
+                  <button
+                    onClick={handleRetry}
+                    className="px-6 py-3 rounded-2xl bg-primary text-white font-medium transition-colors hover:bg-primary/90 shadow-[0_4px_20px_rgba(72,0,255,0.4)]"
+                  >
+                    重试
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="relative w-96 h-96 mb-8">
+                  <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse" />
+                  <MetallicPaint
+                    imageSrc="/N-metallic.svg"
+                    seed={42}
+                    scale={4}
+                    patternSharpness={1}
+                    noiseScale={0.5}
+                    speed={0.4}
+                    liquid={0.75}
+                    mouseAnimation={false}
+                    brightness={2}
+                    contrast={0.5}
+                    refraction={0.01}
+                    blur={0.015}
+                    chromaticSpread={2}
+                    fresnel={1}
+                    angle={0}
+                    waveAmplitude={1}
+                    distortion={1}
+                    contour={0.2}
+                    lightColor="#ffffff"
+                    darkColor="#050505"
+                    tintColor="#4800FF"
+                  />
+                </div>
+                <h2 className="text-xl font-medium mb-3">正在释放创作势能</h2>
+                {(() => {
+                  // Use WebSocket data if available, otherwise fall back to job status
+                  const currentStage = wsStage || job?.stage;
+                  const currentProgress = wsProgress !== undefined ? wsProgress : (job?.progress || 0);
+
+                  return job || wsStatus ? (
+                    <div className="text-center">
+                      <p className="text-white/40 text-sm text-center max-w-[240px] leading-relaxed mb-2">
+                        {currentStage === 'chunkify' && '正在分析和提取核心观点...'}
+                        {currentStage === 'stylify' && '正在应用视觉风格...'}
+                        {currentStage === 'render' && '正在生成最终图像...'}
+                        {!currentStage && '正在处理...'}
+                      </p>
+                      <p className="text-primary font-medium text-lg">{currentProgress}%</p>
+                      {wsConnected && (
+                        <p className="text-white/20 text-xs mt-1">实时连接</p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-white/40 text-sm text-center max-w-[240px] leading-relaxed">
+                      AI 正在提取核心观点并进行视觉排版，请稍候...
+                    </p>
+                  );
+                })()}
+              </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

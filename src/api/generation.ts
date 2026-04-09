@@ -3,7 +3,7 @@
  */
 
 import api from './client';
-import type { GenerationRequest, Job } from './types';
+import type { GenerationRequest, Job, GenerationResponse } from './types';
 
 /**
  * Create a new content generation job
@@ -17,9 +17,11 @@ export async function createGeneration(request: GenerationRequest): Promise<Job 
   }
 
   const endpoint = `/api/generate?${searchParams.toString()}`;
-  const result = await api.post<{ data: Job | null; error?: unknown }>(endpoint);
+  console.log('[generate] Calling endpoint:', endpoint);
+  const response = await api.post<GenerationResponse>(endpoint);
+  console.log('[generate] API result:', response);
 
-  return result?.data ?? null;
+  return response?.data ?? null;
 }
 
 /**
@@ -32,6 +34,6 @@ export async function createGenerationFromAudio(file: File, selectedStyle?: stri
     formData.append('selected_style', selectedStyle);
   }
 
-  const result = await api.postForm<{ data: Job | null; error?: unknown }>('/api/generate/audio', formData);
-  return result?.data ?? null;
+  const response = await api.postForm<GenerationResponse>('/api/generate/audio', formData);
+  return response?.data ?? null;
 }

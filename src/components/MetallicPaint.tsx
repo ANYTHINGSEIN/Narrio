@@ -166,8 +166,8 @@ interface MetallicPaintProps {
 }
 
 function processImage(img: HTMLImageElement): ImageData {
-  const MAX_SIZE = 1000;
-  const MIN_SIZE = 500;
+  const MAX_SIZE = 256;
+  const MIN_SIZE = 128;
   let width = img.naturalWidth || img.width;
   let height = img.naturalHeight || img.height;
 
