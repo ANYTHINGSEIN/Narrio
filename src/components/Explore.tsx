@@ -3,6 +3,14 @@ import { motion, AnimatePresence } from "motion/react";
 import { PostDetail } from "./PostDetail";
 import type { Post } from "../types";
 
+interface ExploreDirectoryInfo {
+  name: string;
+  md_files: string[];
+  has_info: boolean;
+  has_avatar: boolean;
+  images: string[];
+}
+
 interface ExploreContentInfo {
   title: string;
   author: string;
@@ -28,73 +36,70 @@ function loadExploreContent(): Promise<ExplorePost[]> {
         throw new Error(`Failed to fetch directories: ${dirsRes.status}`);
       }
       const dirsData = await dirsRes.json();
-      const contentDirs: string[] = dirsData.data || [];
+      const dirInfos: ExploreDirectoryInfo[] = dirsData.data || [];
 
-      // Pre-configured markdown filenames for each directory
-      const mdFileMap: Record<string, string> = {
-        "aistrong": "aistrong.md",
-        "Dopamine Serotonin Decisions": "Dopamine Serotonin Decisions.md",
-        "Harness design for long-running application": "Harness design for long-running applicat....md",
-        "Harness engineering-leveraging Codex in an agent-first world": "Harness engineering_ leveraging Codex in....md",
-        "The Cure for Execution Tax": "The Cure for Execution Tax.md",
-        "The Gut Decision Matrix-When to Trust Instinct and Intuition": "The Gut Decision Matrix_ When to Trust I....md",
-        "请停下「计数器」思维": "请停下「计数器」思维.md",
-        "贪婪的多巴胺": "纵横四海播客：EP78《贪婪的多巴胺》：如何像沉迷游戏一样沉迷学习？.md",
-      };
-
-      for (const dir of contentDirs) {
+      for (const dirInfo of dirInfos) {
         try {
-          // Load info.json from backend
-          const infoRes = await fetch(`/api/explore-content/${encodeURIComponent(dir)}/info.json`);
-          if (!infoRes.ok) {
-            console.warn(`Failed to load info.json for ${dir}: ${infoRes.status}`);
+          const dir = dirInfo.name;
+
+          // Skip if no markdown files
+          if (dirInfo.md_files.length === 0) {
+            console.warn(`No markdown files found in ${dir}, skipping`);
             continue;
           }
-          const info: ExploreContentInfo = await infoRes.json();
 
-          // Load markdown content using pre-configured filename
-          let markdownContent = "";
-          try {
-            const mdFileName = mdFileMap[dir];
-            if (mdFileName) {
-              const mdRes = await fetch(`/api/explore-content/${encodeURIComponent(dir)}/${encodeURIComponent(mdFileName)}`);
-              if (mdRes.ok) {
-                markdownContent = await mdRes.text();
+          // Load info.json from backend (optional, fallback to directory name)
+          let info: ExploreContentInfo = { title: dir, author: "Unknown" };
+          if (dirInfo.has_info) {
+            try {
+              const infoRes = await fetch(`/api/explore-content/${encodeURIComponent(dir)}/info.json`);
+              if (infoRes.ok) {
+                info = await infoRes.json();
               }
+            } catch (err) {
+              console.warn(`Failed to load info.json for ${dir}, using directory name as title:`, err);
+            }
+          }
+
+          // Load markdown content - use the first .md file found
+          let markdownContent = "";
+          const mdFileName = dirInfo.md_files[0];
+          try {
+            const mdRes = await fetch(`/api/explore-content/${encodeURIComponent(dir)}/${encodeURIComponent(mdFileName)}`);
+            if (mdRes.ok) {
+              markdownContent = await mdRes.text();
             }
           } catch (err) {
             console.warn(`Failed to load markdown for ${dir}:`, err);
           }
 
-          // Load images - try to find how many images exist
-          const images: string[] = [];
-          for (let i = 0; i < 20; i++) {
-            const imgUrl = `/api/explore-content/${encodeURIComponent(dir)}/${i}.png`;
-            const exists = await imageExists(imgUrl);
-            if (exists) {
-              images.push(imgUrl);
-            } else {
-              break;
-            }
+          // Skip if no markdown content found
+          if (!markdownContent) {
+            console.warn(`Failed to load markdown content for ${dir}, skipping`);
+            continue;
           }
 
-          if (images.length > 0) {
-            const post: ExplorePost = {
-              id: `explore-${dir}`,
-              title: info.title,
-              cover: images[0],
-              images: images,
-              originalType: "article",
-              originalContent: markdownContent,
-              author: info.author,
-              avatar: `/api/explore-content/${encodeURIComponent(dir)}/avatar.png`,
-              likes: 0,
-              dirName: dir,
-            };
-            posts.push(post);
-          }
+          // Build image URLs from the list provided by backend
+          const images: string[] = dirInfo.images.map(
+            (img) => `/api/explore-content/${encodeURIComponent(dir)}/${img}`
+          );
+
+          // Create post - use first image as cover or placeholder
+          const post: ExplorePost = {
+            id: `explore-${dir}`,
+            title: info.title,
+            cover: images.length > 0 ? images[0] : "/placeholder-cover.png",
+            images: images,
+            originalType: "article",
+            originalContent: markdownContent,
+            author: info.author,
+            avatar: dirInfo.has_avatar ? `/api/explore-content/${encodeURIComponent(dir)}/avatar.png` : undefined,
+            likes: 0,
+            dirName: dir,
+          };
+          posts.push(post);
         } catch (err) {
-          console.warn(`Failed to load content from ${dir}:`, err);
+          console.warn(`Failed to load content from ${dirInfo.name}:`, err);
         }
       }
     } catch (err) {
@@ -102,18 +107,6 @@ function loadExploreContent(): Promise<ExplorePost[]> {
     }
 
     resolve(posts);
-  });
-}
-
-/**
- * Check if an image exists by attempting to load it
- */
-function imageExists(url: string): Promise<boolean> {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => resolve(true);
-    img.onerror = () => resolve(false);
-    img.src = url;
   });
 }
 
@@ -151,14 +144,14 @@ export function Explore() {
         <p className="text-white/50 text-sm">发现由 Narrio 转换的优质内容</p>
       </motion.div>
 
-      <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {posts.map((post, idx) => (
           <motion.div
             key={post.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1, duration: 0.5 }}
-            className="break-inside-avoid rounded-2xl overflow-hidden bg-surface border border-white/5 group cursor-pointer flex flex-col"
+            className="rounded-2xl overflow-hidden bg-surface border border-white/5 group cursor-pointer flex flex-col"
             onClick={() => setSelectedPost(post)}
           >
             <img

@@ -8,6 +8,7 @@ import { Post } from '../types';
 export function PostDetail({ post, onClose, mode = 'feed' }: { post: Post; onClose: () => void; mode?: 'feed' | 'preview' }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -64,11 +65,11 @@ export function PostDetail({ post, onClose, mode = 'feed' }: { post: Post; onClo
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 50 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm overflow-y-auto flex justify-center no-scrollbar"
+      className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex justify-center"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-6xl bg-bg min-h-screen relative shadow-2xl flex flex-col md:min-h-0 md:h-auto md:max-h-[90vh] md:my-8 md:rounded-3xl overflow-hidden"
+        className="w-full max-w-6xl bg-bg min-h-screen relative shadow-2xl flex flex-col md:min-h-0 md:h-[90vh] md:my-8 md:rounded-3xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Desktop Layout - Side by Side */}
@@ -88,7 +89,7 @@ export function PostDetail({ post, onClose, mode = 'feed' }: { post: Post; onClo
           {/* Right Side - Content */}
           <div className="w-1/2 flex flex-col overflow-hidden">
             {/* Header */}
-            <div className="flex justify-between items-center p-4 bg-gradient-to-b from-black/50 to-transparent shrink-0">
+            <div className="flex justify-between items-center p-4 bg-gradient-to-b from-black/50 to-transparent shrink-0 z-10">
               {mode === 'feed' ? (
                 <button onClick={onClose} className="p-2 rounded-full bg-black/50 backdrop-blur-md text-white hover:bg-white/20 transition-colors">
                   <ChevronLeft size={24} />
@@ -98,7 +99,12 @@ export function PostDetail({ post, onClose, mode = 'feed' }: { post: Post; onClo
               )}
 
               <div className="flex items-center space-x-2 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full">
-                <img src={post.avatar} alt={post.author} className="w-6 h-6 rounded-full border border-white/20 object-cover" />
+                <img
+                  src={avatarError ? '/favicon.svg' : (post.avatar || '/favicon.svg')}
+                  alt={post.author}
+                  className="w-6 h-6 rounded-full border border-white/20 object-cover"
+                  onError={() => setAvatarError(true)}
+                />
                 <span className="text-sm font-medium font-sans text-white/90">{post.author}</span>
               </div>
 
@@ -112,7 +118,7 @@ export function PostDetail({ post, onClose, mode = 'feed' }: { post: Post; onClo
             </div>
 
             {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-6 no-scrollbar">
               <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold leading-tight text-white/90">{post.title}</h1>
                 {mode === 'feed' && (
@@ -140,7 +146,7 @@ export function PostDetail({ post, onClose, mode = 'feed' }: { post: Post; onClo
                 </div>
               )}
 
-              <div className="prose prose-invert max-w-none">
+              <div className="prose prose-invert max-w-none overflow-hidden">
                 {post.originalContent && post.originalContent.trim() ? (
                   <ReactMarkdown
                     components={{
@@ -182,9 +188,9 @@ export function PostDetail({ post, onClose, mode = 'feed' }: { post: Post; onClo
         </div>
 
         {/* Mobile Layout - Stacked */}
-        <div className="flex md:hidden flex-1 flex-col">
+        <div className="flex md:hidden flex-1 flex-col h-full">
           {/* Header */}
-          <div className="sticky top-0 z-20 flex justify-between items-center p-4 bg-gradient-to-b from-black/80 via-black/50 to-transparent">
+          <div className="sticky top-0 z-20 flex justify-between items-center p-4 bg-gradient-to-b from-black/80 via-black/50 to-transparent shrink-0">
             {mode === 'feed' ? (
               <button onClick={onClose} className="p-2 rounded-full bg-black/50 backdrop-blur-md text-white hover:bg-white/20 transition-colors">
                 <ChevronLeft size={24} />
@@ -194,7 +200,12 @@ export function PostDetail({ post, onClose, mode = 'feed' }: { post: Post; onClo
             )}
 
             <div className="flex items-center space-x-2 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full">
-              <img src={post.avatar} alt={post.author} className="w-6 h-6 rounded-full border border-white/20 object-cover" />
+              <img
+                src={avatarError ? '/favicon.svg' : (post.avatar || '/favicon.svg')}
+                alt={post.author}
+                className="w-6 h-6 rounded-full border border-white/20 object-cover"
+                onError={() => setAvatarError(true)}
+              />
               <span className="text-sm font-medium font-sans text-white/90">{post.author}</span>
             </div>
 
@@ -222,7 +233,7 @@ export function PostDetail({ post, onClose, mode = 'feed' }: { post: Post; onClo
           </div>
 
           {/* Content */}
-          <div className="p-4 pb-24 flex-1 bg-bg overflow-y-auto">
+          <div className="p-4 bg-bg flex-grow shrink-0 no-scrollbar" style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
             <h1 className="text-xl font-bold mb-4 leading-tight text-white/90">{post.title}</h1>
 
             {post.originalType === 'podcast' && post.audioUrl && (
@@ -243,7 +254,7 @@ export function PostDetail({ post, onClose, mode = 'feed' }: { post: Post; onClo
               </div>
             )}
 
-            <div className="prose prose-invert max-w-none">
+            <div className="prose prose-invert max-w-none pb-24 overflow-hidden">
               {post.originalContent && post.originalContent.trim() ? (
                 <ReactMarkdown
                   components={{
