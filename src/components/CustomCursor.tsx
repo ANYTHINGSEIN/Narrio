@@ -64,7 +64,7 @@ export function CustomCursor() {
   return (
     <>
       <motion.div
-        className="fixed top-0 left-0 pointer-events-none z-[9999] flex items-center justify-center"
+        className="fixed top-0 left-0 pointer-events-none z-[9999] flex items-center justify-center mix-blend-difference"
         animate={{
           x: position.x,
           y: position.y,
@@ -89,7 +89,7 @@ export function CustomCursor() {
         <motion.img
           src="/cursor.svg"
           alt="cursor"
-          className="w-8 h-auto drop-shadow-lg"
+          className="w-[58px] h-auto brightness-0 invert"
           initial={{ rotate: 0 }}
           animate={{ rotate: -25 }} // Tilt left
           transition={{ duration: 0 }}
@@ -106,7 +106,7 @@ export function CustomCursor() {
             animate={{ scale: 2.5, opacity: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="fixed pointer-events-none z-[9998] w-12 h-12 rounded-full border-2 border-[#4800FF]"
+            className="fixed pointer-events-none z-[9998] w-12 h-12 rounded-full border-2 border-white mix-blend-difference"
             style={{
               left: clickEffect.x - 24, // Center the ripple
               top: clickEffect.y - 24,
