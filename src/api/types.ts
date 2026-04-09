@@ -3,15 +3,20 @@
  */
 
 // Job types
-export type JobStatus = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELED';
-export type JobStage = 'chunkify' | 'stylify' | 'render';
+export type JobStatus =
+  | "PENDING"
+  | "RUNNING"
+  | "COMPLETED"
+  | "FAILED"
+  | "CANCELED";
+export type JobStage = "chunkify" | "stylify" | "render";
 
 export interface Job {
   id: string;
   status: JobStatus;
   stage: JobStage | null;
   progress: number; // 0-100
-  input_type: 'text' | 'url' | 'audio';
+  input_type: "text" | "url" | "audio";
   input_value: string;
   selected_style: string | null;
   created_at: string;
@@ -26,11 +31,14 @@ export interface JobResult {
   status: string;
   output_url: string;
   images: Array<{ url: string; page: number }>;
-  metadata: Record<string, unknown>;
+  metadata: Record<string, unknown> & {
+    original_content?: string;
+    source_url?: string;
+  };
 }
 
 export interface JobCreate {
-  input_type: 'text' | 'url' | 'audio';
+  input_type: "text" | "url" | "audio";
   input_value: string;
   selected_style?: string;
 }
@@ -40,7 +48,7 @@ export interface Post {
   id: string;
   title: string;
   content: string | null;
-  content_type: 'article' | 'podcast';
+  content_type: "article" | "podcast";
   images: Array<{ url: string; alt?: string }>;
   audio_url: string | null;
   author: string | null;
@@ -52,7 +60,7 @@ export interface Post {
 export interface PostListParams {
   limit?: number;
   offset?: number;
-  type?: 'article' | 'podcast';
+  type?: "article" | "podcast";
   from_date?: string;
   to_date?: string;
   q?: string;
@@ -86,7 +94,7 @@ export interface JobListResponse {
 
 // Generation types
 export interface GenerationRequest {
-  input_type: 'text' | 'url' | 'audio';
+  input_type: "text" | "url" | "audio";
   input_value: string;
   selected_style?: string;
 }
@@ -128,7 +136,7 @@ export interface SSRScrapeResponse {
     content: string;
     cover: string;
     url: string;
-    input_type: 'url';
+    input_type: "url";
   } | null;
   error: ApiError | null;
 }
