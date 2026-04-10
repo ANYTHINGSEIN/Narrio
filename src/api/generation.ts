@@ -9,16 +9,15 @@ import type { GenerationRequest, Job, GenerationResponse } from './types';
  * Create a new content generation job
  */
 export async function createGeneration(request: GenerationRequest): Promise<Job | null> {
-  const searchParams = new URLSearchParams();
-  searchParams.set('input_type', request.input_type);
-  searchParams.set('input_value', request.input_value);
-  if (request.selected_style) {
-    searchParams.set('selected_style', request.selected_style);
-  }
+  // Use POST body instead of query params to avoid URL length limits
+  const endpoint = '/api/generate';
+  console.log('[generate] Calling endpoint:', endpoint, 'with body:', {
+    input_type: request.input_type,
+    input_value: request.input_value.substring(0, 100) + '...',
+    selected_style: request.selected_style
+  });
 
-  const endpoint = `/api/generate?${searchParams.toString()}`;
-  console.log('[generate] Calling endpoint:', endpoint);
-  const response = await api.post<GenerationResponse>(endpoint);
+  const response = await api.post<GenerationResponse>(endpoint, request);
   console.log('[generate] API result:', response);
 
   return response?.data ?? null;
