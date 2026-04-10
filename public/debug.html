@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Narrio 连接调试工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+        .label {
+            font-weight: 600;
+            color: #555;
+        }
+        .value {
+            color: #333;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            text-align: right;
+            max-width: 60%;
+        }
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status.pending {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .test-result {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 2px solid #e0e0e0;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .copy-btn {
+            background: #28a745;
+            padding: 8px 16px;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        .copy-btn:hover {
+            background: #218838;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Narrio 连接调试工具</h1>
+        <p class="subtitle">检查前后端连接配置和网络状态</p>
+
+        <!-- 环境配置 -->
+        <div class="section">
+            <h2>📋 环境配置</h2>
+            <div class="info-row">
+                <span class="label">前端 URL:</span>
+                <span class="value" id="frontend-url">-</span>
+            </div>
+            <div class="info-row">
+                <span class="label">配置的后端 API:</span>
+                <span class="value" id="backend-url">-</span>
+            </div>
+            <div class="info-row">
+                <span class="label">配置状态:</span>
+                <span class="value" id="config-status">-</span>
+            </div>
+        </div>
+
+        <!-- 后端健康检查 -->
+        <div class="section">
+            <h2>🏥 后端健康检查</h2>
+            <button onclick="testBackendHealth()" id="health-btn">测试后端连接</button>
+            <div class="info-row" style="margin-top: 15px;">
+                <span class="label">健康状态:</span>
+                <span class="value" id="health-status">
+                    <span class="status pending">未测试</span>
+                </span>
+            </div>
+            <div id="health-result" class="test-result" style="display: none;"></div>
+        </div>
+
+        <!-- CORS 测试 -->
+        <div class="section">
+            <h2>🔐 CORS 配置测试</h2>
+            <button onclick="testCORS()" id="cors-btn">测试 CORS</button>
+            <div class="info-row" style="margin-top: 15px;">
+                <span class="label">CORS 状态:</span>
+                <span class="value" id="cors-status">
+                    <span class="status pending">未测试</span>
+                </span>
+            </div>
+            <div id="cors-result" class="test-result" style="display: none;"></div>
+        </div>
+
+        <!-- 完整 API 测试 -->
+        <div class="section">
+            <h2>🚀 完整 API 测试</h2>
+            <button onclick="testFullAPI()" id="api-btn">运行完整测试</button>
+            <button onclick="copyDiagnostics()" class="copy-btn">📋 复制诊断信息</button>
+            <div id="api-result" class="test-result" style="display: none;"></div>
+        </div>
+
+        <!-- 解决方案 -->
+        <div class="section" id="solution-section" style="display: none; border-left-color: #dc3545;">
+            <h2>⚠️ 发现问题</h2>
+            <div id="solution-text"></div>
+        </div>
+    </div>
+
+    <script>
+        // 获取配置
+        const frontendUrl = window.location.origin;
+        const backendUrl = window.__ENV__?.API_BASE_URL ||
+                          (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) ||
+                          'http://localhost:8000';
+
+        // 显示配置
+        document.getElementById('frontend-url').textContent = frontendUrl;
+        document.getElementById('backend-url').textContent = backendUrl;
+
+        // 检查配置状态
+        function checkConfig() {
+            if (backendUrl.includes('localhost') || backendUrl.includes('127.0.0.1')) {
+                document.getElementById('config-status').innerHTML =
+                    '<span class="status error">⚠️ 使用本地配置</span>';
+                showSolution('后端 URL 配置错误',
+                    '当前使用的是 localhost 地址，这在生产环境无法工作。\n\n' +
+                    '解决方案：\n' +
+                    '1. 在 Dokploy 前端应用中设置构建参数：\n' +
+                    '   VITE_API_BASE_URL=https://你的后端域名\n\n' +
+                    '2. 同时设置运行时环境变量：\n' +
+                    '   VITE_API_BASE_URL=https://你的后端域名\n\n' +
+                    '3. 重新部署前端（必须重新构建）');
+            } else if (!window.__ENV__?.API_BASE_URL) {
+                document.getElementById('config-status').innerHTML =
+                    '<span class="status warning">⚠️ 未使用运行时配置</span>';
+            } else {
+                document.getElementById('config-status').innerHTML =
+                    '<span class="status success">✓ 配置正确</span>';
+            }
+        }
+
+        // 测试后端健康
+        async function testBackendHealth() {
+            const btn = document.getElementById('health-btn');
+            const statusEl = document.getElementById('health-status');
+            const resultEl = document.getElementById('health-result');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> 测试中...';
+            statusEl.innerHTML = '<span class="status pending">测试中...</span>';
+            resultEl.style.display = 'block';
+            resultEl.textContent = '正在连接后端...\n';
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`${backendUrl}/api/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                });
+                const elapsed = Date.now() - startTime;
+
+                resultEl.textContent += `\n响应时间: ${elapsed}ms\n`;
+                resultEl.textContent += `状态码: ${response.status}\n`;
+                resultEl.textContent += `状态文本: ${response.statusText}\n\n`;
+
+                resultEl.textContent += '响应头:\n';
+                response.headers.forEach((value, key) => {
+                    resultEl.textContent += `  ${key}: ${value}\n`;
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resultEl.textContent += `\n响应体:\n${JSON.stringify(data, null, 2)}`;
+
+                    statusEl.innerHTML = '<span class="status success">✓ 连接成功</span>';
+                } else {
+                    const text = await response.text();
+                    resultEl.textContent += `\n响应体:\n${text}`;
+
+                    statusEl.innerHTML = '<span class="status error">✗ 连接失败</span>';
+                    showSolution('后端返回错误状态码',
+                        `后端返回了 ${response.status} 状态码。\n\n` +
+                        '可能原因：\n' +
+                        '- 后端未正确启动\n' +
+                        '- 路由配置错误\n' +
+                        '- 后端代码有 bug\n\n' +
+                        '请检查 Dokploy 后端日志获取详细信息。');
+                }
+            } catch (error) {
+                resultEl.textContent += `\n错误: ${error.message}\n`;
+                resultEl.textContent += `\n这通常意味着：\n`;
+                resultEl.textContent += `- 后端未运行\n`;
+                resultEl.textContent += `- 后端域名错误\n`;
+                resultEl.textContent += `- 网络连接问题\n`;
+                resultEl.textContent += `- CORS 阻止了请求\n`;
+
+                statusEl.innerHTML = '<span class="status error">✗ 无法连接</span>';
+                showSolution('无法连接到后端',
+                    '前端无法连接到后端 API。\n\n' +
+                    '请检查：\n' +
+                    '1. 后端是否在 Dokploy 中正常运行（绿色状态）\n' +
+                    '2. 后端域名是否正确\n' +
+                    '3. 在浏览器中直接访问：\n' +
+                    `   ${backendUrl}/api/health\n\n` +
+                    '4. 检查后端日志是否有错误');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '重新测试';
+            }
+        }
+
+        // 测试 CORS
+        async function testCORS() {
+            const btn = document.getElementById('cors-btn');
+            const statusEl = document.getElementById('cors-status');
+            const resultEl = document.getElementById('cors-result');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> 测试中...';
+            statusEl.innerHTML = '<span class="status pending">测试中...</span>';
+            resultEl.style.display = 'block';
+            resultEl.textContent = '测试 CORS 配置...\n\n';
+
+            try {
+                // 先发送 OPTIONS 预检请求（浏览器自动处理）
+                const response = await fetch(`${backendUrl}/api/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                });
+
+                resultEl.textContent += 'CORS 相关响应头:\n';
+                const corsHeaders = [
+                    'access-control-allow-origin',
+                    'access-control-allow-methods',
+                    'access-control-allow-headers',
+                    'access-control-allow-credentials',
+                    'access-control-expose-headers',
+                ];
+
+                let hasCORS = false;
+                corsHeaders.forEach(header => {
+                    const value = response.headers.get(header);
+                    if (value) {
+                        resultEl.textContent += `  ${header}: ${value}\n`;
+                        hasCORS = true;
+                    }
+                });
+
+                if (!hasCORS) {
+                    resultEl.textContent += '  (未找到 CORS 响应头)\n';
+                }
+
+                resultEl.textContent += `\n请求来源: ${frontendUrl}\n`;
+
+                const allowOrigin = response.headers.get('access-control-allow-origin');
+                if (allowOrigin === frontendUrl || allowOrigin === '*') {
+                    statusEl.innerHTML = '<span class="status success">✓ CORS 配置正确</span>';
+                    resultEl.textContent += '\n✓ CORS 配置正确，允许此来源。';
+                } else if (allowOrigin) {
+                    statusEl.innerHTML = '<span class="status error">✗ CORS 配置错误</span>';
+                    resultEl.textContent += `\n✗ CORS 只允许: ${allowOrigin}\n`;
+                    resultEl.textContent += `  但当前来源是: ${frontendUrl}\n`;
+                    showSolution('CORS 配置不匹配',
+                        '后端的 CORS 配置不包含当前前端域名。\n\n' +
+                        '解决方案：\n' +
+                        '1. 在 Dokploy 后端应用环境变量中设置：\n' +
+                        `   NARRIO_ALLOWED_ORIGINS=${frontendUrl}\n\n` +
+                        '2. 如果有多个域名，用逗号分隔：\n' +
+                        `   NARRIO_ALLOWED_ORIGINS=${frontendUrl},https://其他域名\n\n` +
+                        '3. 保存后重新部署后端');
+                } else {
+                    statusEl.innerHTML = '<span class="status warning">⚠️ 未配置 CORS</span>';
+                    resultEl.textContent += '\n⚠️ 后端未返回 CORS 响应头。';
+                    showSolution('后端未配置 CORS',
+                        '后端没有配置 CORS，这会导致浏览器阻止请求。\n\n' +
+                        '解决方案：\n' +
+                        '1. 在 Dokploy 后端应用环境变量中添加：\n' +
+                        `   NARRIO_ALLOWED_ORIGINS=${frontendUrl}\n\n` +
+                        '2. 重新部署后端');
+                }
+            } catch (error) {
+                resultEl.textContent += `\n错误: ${error.message}\n`;
+                statusEl.innerHTML = '<span class="status error">✗ 测试失败</span>';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '重新测试';
+            }
+        }
+
+        // 完整 API 测试
+        async function testFullAPI() {
+            const btn = document.getElementById('api-btn');
+            const resultEl = document.getElementById('api-result');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> 测试中...';
+            resultEl.style.display = 'block';
+            resultEl.textContent = '=== 完整 API 测试 ===\n\n';
+
+            // 测试 1: 健康检查
+            resultEl.textContent += '1. 测试健康检查端点...\n';
+            try {
+                const res = await fetch(`${backendUrl}/api/health`);
+                if (res.ok) {
+                    const data = await res.json();
+                    resultEl.textContent += `   ✓ 健康检查成功: ${JSON.stringify(data)}\n`;
+                } else {
+                    resultEl.textContent += `   ✗ 健康检查失败: ${res.status}\n`;
+                }
+            } catch (err) {
+                resultEl.textContent += `   ✗ 健康检查错误: ${err.message}\n`;
+            }
+
+            // 测试 2: 环境信息
+            resultEl.textContent += '\n2. 环境信息:\n';
+            resultEl.textContent += `   前端: ${frontendUrl}\n`;
+            resultEl.textContent += `   后端: ${backendUrl}\n`;
+            resultEl.textContent += `   User Agent: ${navigator.userAgent}\n`;
+
+            // 测试 3: 浏览器信息
+            resultEl.textContent += '\n3. 浏览器信息:\n';
+            resultEl.textContent += `   在线状态: ${navigator.onLine ? '在线' : '离线'}\n`;
+            resultEl.textContent += `   Cookie 启用: ${navigator.cookieEnabled ? '是' : '否'}\n`;
+
+            resultEl.textContent += '\n=== 测试完成 ===\n';
+
+            btn.disabled = false;
+            btn.textContent = '重新运行测试';
+        }
+
+        // 显示解决方案
+        function showSolution(title, text) {
+            const section = document.getElementById('solution-section');
+            const textEl = document.getElementById('solution-text');
+            section.style.display = 'block';
+            textEl.innerHTML = `<strong>${title}</strong><pre style="margin-top: 10px; white-space: pre-wrap;">${text}</pre>`;
+        }
+
+        // 复制诊断信息
+        function copyDiagnostics() {
+            const info = `
+=== Narrio 诊断信息 ===
+
+前端 URL: ${frontendUrl}
+后端 URL: ${backendUrl}
+时间: ${new Date().toISOString()}
+
+配置检查:
+- window.__ENV__: ${JSON.stringify(window.__ENV__, null, 2)}
+- 浏览器: ${navigator.userAgent}
+- 在线: ${navigator.onLine}
+
+请手动测试:
+1. 在浏览器访问: ${backendUrl}/api/health
+2. 检查 Dokploy 后端日志中的 CORS 配置
+3. 查看浏览器开发者工具 Network 标签
+
+==================
+            `.trim();
+
+            navigator.clipboard.writeText(info).then(() => {
+                alert('✓ 诊断信息已复制到剪贴板！');
+            }).catch(() => {
+                prompt('请手动复制以下信息：', info);
+            });
+        }
+
+        // 页面加载时执行
+        checkConfig();
+    </script>
+</body>
+</html>
